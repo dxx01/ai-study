@@ -100,4 +100,4 @@ mvn clean verify
 
 受限环境（沙箱/部分 CI）里 Mockito 无法外部 attach，可加 `-DargLine="-Djdk.attach.allowAttachSelf=true"`；普通 IDE 与 CI 不需要。
 
-更多：[docs/microservices.md](docs/microservices.md)、[docs/roadmap.md](docs/roadmap.md)。
+更多：[项目说明书](docs/project-charter.md)、[学习日志](docs/learning-log.md)、[docs/microservices.md](docs/microservices.md)、[docs/roadmap.md](docs/roadmap.md)。
