@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-Node 22+（建议 24 LTS，见 `.nvmrc`）。若内网 npm registry 不可达，可改用镜像：
+Node 22+（建议 24 LTS，见 `.nvmrc`）。若默认 registry 不可达，可临时改用镜像：
 
 ```powershell
 npm install --registry=https://registry.npmmirror.com
