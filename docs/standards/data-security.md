@@ -6,6 +6,15 @@
 - API Key、DB 密码：**环境变量** 或 gitignore 的本地 env 文件；禁止硬编码、禁止入 Git  
 - 日志禁止输出密码、token 全文、API Key  
 
+### 1.1 模型 / 检索密钥边界（本项目）
+
+- **模型 API Key 只允许出现在 `ai-service-llm`**；`ai-auth`、`ai-service-conversation`、`ai-service-knowledge`、`ai-gateway`、`frontend` 不得读取或转发。  
+- 联网检索 Key（`TAVILY_API_KEY`）同上，仅 `ai-service-llm`。  
+- 若 embedding 改为外部 API，使用**独立**的 embedding Key，只允许出现在 `ai-service-knowledge`，不得与模型 Key 共用。  
+- 网关是公网入口，**不持有**任何上游 AI Key。  
+- 生产用环境变量 / K8s Secret / Vault；本地用 gitignored 的 `.env.*.properties`；禁止打入镜像或提交仓库。  
+- 启动校验只判断“是否配置 / 是否为占位符”，**不打印** Key 内容。  
+
 ## 2. 鉴权与隔离
 
 - 数据查询必须在 **后端** 校验 Sa-Token 登录态与权限码  

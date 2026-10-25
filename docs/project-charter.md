@@ -102,7 +102,7 @@
 2. **可评测**：任何 AI 改动先有基线，再看指标；不接受“感觉更好”。
 3. **可降级**：知识库/联网/模型故障时给明确提示，不把 500 抛给用户。
 4. **边界清晰**：编排在 `ai-service-llm`，检索在 `ai-service-knowledge`，持久化在 `ai-service-conversation`，网关只做路由与登录校验。
-5. **数据最小化**：只存回答必需的数据；密钥只放环境变量/gitignored 文件。
+5. **数据最小化**：只存回答必需的数据；密钥按服务最小化（模型 Key 只在 `ai-service-llm`，embedding Key 只在 `ai-service-knowledge`）。
 6. **一次只改一个变量**：embedding、chunk、topK、rerank、prompt 分开验证。
 7. **不为演示加功能**：新功能必须映射到第 3 节的旅程与第 5 节的指标。
 
