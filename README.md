@@ -71,7 +71,9 @@ mvn -pl backend/ai-service-llm spring-boot:run
 mvn -pl backend/ai-gateway spring-boot:run
 ```
 
-> 知识库服务首次启动会从 GitHub 下载 `all-MiniLM-L6-v2` ONNX 模型（约 90MB），缓存到 `backend/ai-service-knowledge/data/model-cache`；网络受限时会卡住或超时，见 [docs/microservices.md](docs/microservices.md)。后续应换成本地中文模型或 embedding API。
+> 知识库默认首次启动会从 GitHub 下载 `all-MiniLM-L6-v2` ONNX 模型（约 90MB），缓存到 `backend/ai-service-knowledge/data/model-cache`；网络受限会卡住。
+> 可先把 `model.onnx` / `tokenizer.json` 放到 `data/model-cache/all-MiniLM-L6-v2/`，再用本地模型 profile 启动：
+> `mvn -pl backend/ai-service-knowledge spring-boot:run "-Dspring-boot.run.profiles=dev,local-model"`。详见 [docs/microservices.md](docs/microservices.md)。
 
 前端：
 
@@ -87,8 +89,8 @@ LLM 密钥放在 `backend/ai-service-llm/.env.dev.properties`（已被 gitignore
 
 1. 打开 http://localhost:5173，用 `admin/admin123` 登录
 2. 发送“你好”，应返回回答与免责声明
-3. 知识库页上传一个 PDF/Word，列表出现文档 ID 与分块数
-4. 再提问文档里的内容，回答应带“参考依据”
+3. 知识库页上传 [示例文档](docs/samples/hypertension-diet.md)（或任意 PDF/Word），列表出现文档 ID 与分块数
+4. 提问“高血压人群每天食盐摄入建议不超过多少克？”，回答应包含“5 克”并带“参考依据”
 
 任何一步失败，先修这一步，再继续。
 

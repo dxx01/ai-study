@@ -6,6 +6,10 @@ spring:
     name: ai-service-llm
   profiles:
     active: dev
+  # ai-common 传递了 MyBatis-Plus/JDBC，但本服务只做编排，不需要 DataSource
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}

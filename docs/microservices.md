@@ -38,8 +38,14 @@ mvn -pl backend/ai-gateway spring-boot:run
 ## 知识库与 embedding 模型
 
 - 知识库默认用 `spring-ai-starter-model-transformers`（ONNX）。**首次启动**会从 GitHub 下载 `all-MiniLM-L6-v2`（约 90MB），缓存到 `backend/ai-service-knowledge/data/model-cache`（可用 `EMBEDDING_CACHE_DIR` 覆盖）。
-- 网络受限时（国内访问 GitHub raw 常见）会卡在 `Caching the URL ...`；可配置代理，或预下载 `model.onnx` / `tokenizer.json` 后设置
-  `spring.ai.embedding.transformer.onnx.model-uri=file:/...` 与 `spring.ai.embedding.transformer.tokenizer.uri=file:/...`。
+- 网络受限时（国内访问 GitHub raw 常见）会卡在 `Caching the URL ...`。可预下载 `model.onnx` / `tokenizer.json` 到
+  `backend/ai-service-knowledge/data/model-cache/all-MiniLM-L6-v2/`，然后启用本地模型 profile：
+
+  ```powershell
+  mvn -pl backend/ai-service-knowledge spring-boot:run "-Dspring-boot.run.profiles=dev,local-model"
+  ```
+
+  对应配置见 `application-local-model.yml`，也可用 `EMBEDDING_MODEL_URI` / `EMBEDDING_TOKENIZER_URI` 覆盖路径。
 - 该默认模型以英文语料为主，中文检索效果有限，属于 [roadmap](roadmap.md) Phase 3 的改造点。
 
 ## API 示例
