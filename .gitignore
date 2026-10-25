@@ -42,3 +42,6 @@ frontend/dist/
 **/data/knowledge-base/
 **/data/model-cache/
 .smoke/
+
+# 评测报告（本地生成）
+eval/report-*.json

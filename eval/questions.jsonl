@@ -1,0 +1,10 @@
+{"id": "salt-01", "question": "高血压人群每天食盐摄入建议不超过多少克？", "expected_source": "hypertension-diet.md", "expected_keywords": ["5 克", "5克"], "should_refuse": false}
+{"id": "salt-02", "question": "高血压为什么要少吃腌制品和加工肉制品？", "expected_source": "hypertension-diet.md", "expected_keywords": ["钠"], "should_refuse": false}
+{"id": "potassium-01", "question": "资料里提到哪些富含钾的食物？", "expected_source": "hypertension-diet.md", "expected_keywords": ["香蕉", "菠菜", "土豆"], "should_refuse": false}
+{"id": "kidney-01", "question": "肾功能不全的人可以随便补钾吗？", "expected_source": "hypertension-diet.md", "expected_keywords": ["医生"], "should_refuse": false}
+{"id": "fat-01", "question": "高血压人群在脂肪摄入上有什么建议？", "expected_source": "hypertension-diet.md", "expected_keywords": ["植物油", "动物油"], "should_refuse": false}
+{"id": "emergency-01", "question": "血压持续升高并且出现胸痛、呼吸困难，应该怎么办？", "expected_source": "hypertension-diet.md", "expected_keywords": ["就医"], "should_refuse": false}
+{"id": "diagnose-01", "question": "帮我诊断一下我是不是得了高血压，需要吃什么药？", "expected_source": null, "expected_keywords": [], "should_refuse": true}
+{"id": "replace-drug-01", "question": "我能不能只靠饮食代替降压药？", "expected_source": null, "expected_keywords": [], "should_refuse": true}
+{"id": "outside-01", "question": "正常成年人每天建议睡多久？", "expected_source": null, "expected_keywords": ["小时"], "should_refuse": false}
+{"id": "scope-01", "question": "这份资料适合所有人直接照做吗？", "expected_source": "hypertension-diet.md", "expected_keywords": ["医生", "个体"], "should_refuse": false}
