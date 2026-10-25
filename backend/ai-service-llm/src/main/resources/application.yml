@@ -36,6 +36,10 @@ app:
     enabled: ${WEB_SEARCH_ENABLED:false}
     tavily-api-key: ${TAVILY_API_KEY:}
     max-results: 5
+  rate-limit:
+    enabled: ${CHAT_RATE_LIMIT_ENABLED:true}
+    chat-per-minute: ${CHAT_RATE_LIMIT_PER_MINUTE:20}
+    chat-per-day: ${CHAT_RATE_LIMIT_PER_DAY:200}
   services:
     knowledge-base-url: ${KNOWLEDGE_SERVICE_URL:http://127.0.0.1:9202}
     conversation-base-url: ${CONVERSATION_SERVICE_URL:http://127.0.0.1:9203}

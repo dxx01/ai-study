@@ -60,6 +60,13 @@ Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/chat" `
   -Body '{"message":"你好","mode":"AUTO"}'
 ```
 
+## 限流与错误处理
+
+- 对话按用户限流：默认 **20 次/分钟、200 次/天**，Redis 计数（`rate:chat:*`）。
+- 可用 `CHAT_RATE_LIMIT_ENABLED` / `CHAT_RATE_LIMIT_PER_MINUTE` / `CHAT_RATE_LIMIT_PER_DAY` 覆盖。
+- 超限返回 `429` + `Retry-After`，`detail` 是中文提示；模型认证失败/不可用返回 `502/503` 可读提示。
+- 原始异常、下游状态码只写服务端日志，不把堆栈或上游错误码直接抛给前端。
+
 ## 测试
 
 ```powershell

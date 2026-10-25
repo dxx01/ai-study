@@ -16,6 +16,7 @@ public class LlmProperties {
 
     private Expert expert = new Expert();
     private WebSearch webSearch = new WebSearch();
+    private RateLimit rateLimit = new RateLimit();
     private Services services = new Services();
 
     public Expert getExpert() {
@@ -32,6 +33,14 @@ public class LlmProperties {
 
     public void setWebSearch(WebSearch webSearch) {
         this.webSearch = webSearch;
+    }
+
+    public RateLimit getRateLimit() {
+        return rateLimit;
+    }
+
+    public void setRateLimit(RateLimit rateLimit) {
+        this.rateLimit = rateLimit;
     }
 
     public Services getServices() {
@@ -130,6 +139,36 @@ public class LlmProperties {
 
         public boolean isConfigured() {
             return enabled && tavilyApiKey != null && !tavilyApiKey.isBlank();
+        }
+    }
+
+    public static class RateLimit {
+        private boolean enabled = true;
+        private int chatPerMinute = 20;
+        private int chatPerDay = 200;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getChatPerMinute() {
+            return chatPerMinute;
+        }
+
+        public void setChatPerMinute(int chatPerMinute) {
+            this.chatPerMinute = chatPerMinute;
+        }
+
+        public int getChatPerDay() {
+            return chatPerDay;
+        }
+
+        public void setChatPerDay(int chatPerDay) {
+            this.chatPerDay = chatPerDay;
         }
     }
 

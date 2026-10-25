@@ -10,6 +10,7 @@ import com.example.ai.common.api.dto.SourceCitation;
 import com.example.ai.llm.client.ConversationServiceClient;
 import com.example.ai.llm.client.KnowledgeServiceClient;
 import com.example.ai.llm.config.LlmProperties;
+import com.example.ai.llm.ratelimit.ChatRateLimitService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -41,17 +42,20 @@ public class ChatOrchestrationService {
     private final KnowledgeServiceClient knowledgeServiceClient;
     private final ConversationServiceClient conversationServiceClient;
     private final WebSearchService webSearchService;
+    private final ChatRateLimitService rateLimitService;
 
     public ChatOrchestrationService(ChatClient expertChatClient,
                                     LlmProperties properties,
                                     KnowledgeServiceClient knowledgeServiceClient,
                                     ConversationServiceClient conversationServiceClient,
-                                    WebSearchService webSearchService) {
+                                    WebSearchService webSearchService,
+                                    ChatRateLimitService rateLimitService) {
         this.chatClient = expertChatClient;
         this.properties = properties;
         this.knowledgeServiceClient = knowledgeServiceClient;
         this.conversationServiceClient = conversationServiceClient;
         this.webSearchService = webSearchService;
+        this.rateLimitService = rateLimitService;
     }
 
     /**
@@ -59,6 +63,7 @@ public class ChatOrchestrationService {
      * @return 回答与引用
      */
     public ChatResponse chat(ChatRequest request) {
+        rateLimitService.check(StpUtil.getLoginIdAsLong());
         String authorization = authorizationHeader();
         String sessionId = resolveSessionId(request.sessionId(), authorization);
 
