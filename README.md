@@ -15,7 +15,7 @@ docs/
 
 ## 要求
 
-JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node **18+**（Vite 6）。Node 未安装时可用 `winget install OpenJS.NodeJS.LTS` 或 fnm/nvm。
+JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node **22+**（建议 24 LTS，见 `frontend/.nvmrc`）。Node 未安装时可用 `nvm install 24` 或 `winget install OpenJS.NodeJS.LTS`。
 
 ## 数据库（请先读）
 

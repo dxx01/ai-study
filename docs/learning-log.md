@@ -26,6 +26,7 @@
 | 网关 | 未登录 401；带 token 路由成功 |
 | 单测 | `UserStoreServiceTest` 1/1 通过 |
 | 对话端到端 | 上传 1 篇 → 命中 1 条本地引用 → 2.6s 返回正确答案 |
+| 前端构建 | Node 24.10.0，`vue-tsc -b && vite build` 通过（1694 modules，5.8s） |
 
 ### 踩坑（按重要性）
 
