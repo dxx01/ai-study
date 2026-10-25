@@ -1,0 +1,51 @@
+server:
+  port: 9202
+
+spring:
+  application:
+    name: ai-service-knowledge
+  profiles:
+    active: dev
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: 0
+  ai:
+    embedding:
+      transformer:
+        # 模型首次下载后缓存到项目目录，避免 %TEMP% 清理后重复下载
+        cache:
+          directory: ${EMBEDDING_CACHE_DIR:./data/model-cache}
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 30MB
+
+app:
+  knowledge:
+    storage-dir: ${KNOWLEDGE_STORAGE_DIR:./data/knowledge-base}
+    rag-top-k: 5
+    similarity-threshold: 0.65
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  is-read-header: true
+  is-read-cookie: false
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.example.ai.knowledge: INFO

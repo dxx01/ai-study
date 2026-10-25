@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-gateway
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: 0
+  cloud:
+    gateway:
+      routes:
+        - id: ai-auth
+          uri: http://127.0.0.1:9101
+          predicates:
+            - Path=/auth/**
+        - id: ai-llm
+          uri: http://127.0.0.1:9201
+          predicates:
+            - Path=/api/chat/**
+        - id: ai-knowledge
+          uri: http://127.0.0.1:9202
+          predicates:
+            - Path=/api/knowledge/**
+        - id: ai-conversation
+          uri: http://127.0.0.1:9203
+          predicates:
+            - Path=/api/conversation/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  is-read-header: true
+  is-read-cookie: false
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

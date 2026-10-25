@@ -1,0 +1,4 @@
+spring:
+  config:
+    import:
+      - optional:file:../ai-service-llm/.env.prod.properties

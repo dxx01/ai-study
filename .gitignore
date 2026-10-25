@@ -19,14 +19,25 @@ bin/
 .DS_Store
 Thumbs.db
 
-# Secrets & local config
+# Secrets & local config（含 API Key，勿上传 GitHub）
 .env
+**/.env
 .env.*
-!.env.example
+**/.env.*
+**/.env.*.properties
+deploy/env/local-mysql.env
+deploy/env/*.local.env
 *.pem
 *.key
-application-local.yml
-application-local.properties
 
 # Logs
 *.log
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# 本地知识库上传文件与模型缓存
+**/data/knowledge-base/
+**/data/model-cache/
+.smoke/

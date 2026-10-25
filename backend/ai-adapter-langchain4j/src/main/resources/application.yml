@@ -1,0 +1,14 @@
+# CLI 模块，无 HTTP；配置键与 ai-service-llm 对齐
+spring:
+  application:
+    name: ai-adapter-langchain4j
+  profiles:
+    active: dev
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+      chat:
+        options:
+          model: ${OPENAI_CHAT_MODEL:deepseek-chat}
+          temperature: ${OPENAI_CHAT_TEMPERATURE:1}

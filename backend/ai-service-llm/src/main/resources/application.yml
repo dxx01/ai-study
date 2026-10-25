@@ -1,0 +1,60 @@
+server:
+  port: 9201
+
+spring:
+  application:
+    name: ai-service-llm
+  profiles:
+    active: dev
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: 0
+
+app:
+  expert:
+    id: home-health-advisor
+    display-name: 居家营养与健康科普顾问
+    tagline: 基于本地资料与可选联网检索的科普助手（非诊疗）
+    domains:
+      - 均衡膳食与营养素
+      - 运动与作息
+      - 常见症状科普与就医指引
+      - 慢病生活方式管理（科普层面）
+    principles:
+      - 优先依据用户上传或内置知识库中的内容回答，并说明依据
+      - 信息不足时明确说明不确定，并建议就医或查阅权威渠道
+      - 不提供诊断、不开具处方、不替代线下医生
+      - 涉及急症或严重症状时，优先建议立即就医或拨打 120
+    disclaimer: 本助手仅提供健康科普与一般性建议，不构成医疗诊断或治疗方案；如有不适请及时就医。
+  web-search:
+    enabled: ${WEB_SEARCH_ENABLED:false}
+    tavily-api-key: ${TAVILY_API_KEY:}
+    max-results: 5
+  services:
+    knowledge-base-url: ${KNOWLEDGE_SERVICE_URL:http://127.0.0.1:9202}
+    conversation-base-url: ${CONVERSATION_SERVICE_URL:http://127.0.0.1:9203}
+
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  is-read-header: true
+  is-read-cookie: false
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    org.springframework.ai: INFO
+    com.example.ai.llm: INFO
