@@ -9,8 +9,7 @@
 | 主机 | `127.0.0.1` |
 | 端口 | `3306` |
 | 库名 | `ai_platform` |
-| 管理账号 | `root`（密码见 `deploy/env/local-mysql.env`，已 gitignore） |
-| 应用账号 | `ai` / `ai_dev_password`（`init-mysql-local.ps1` 创建，微服务默认使用） |
+| 账号 | `root`（密码见 `deploy/env/local-mysql.env`，已 gitignore；服务与初始化共用） |
 
 JDBC（与 `application-dev.yml` 一致，时区 **Asia/Shanghai**）：
 
@@ -20,15 +19,15 @@ jdbc:mysql://127.0.0.1:3306/ai_platform?useUnicode=true&characterEncoding=utf8&s
 
 ## 环境变量
 
-root 账号只用于初始化与命令行；`local-mysql.env` 已被 gitignore：
+本机账号只来自 `deploy/env/local-mysql.env`（已 gitignore）：
 
 ```powershell
 Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
-# 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
+# 编辑 deploy\env\local-mysql.env，填写 MYSQL_USER / MYSQL_PASSWORD
 .\scripts\load-local-mysql-env.ps1
 ```
 
-初始化脚本会执行 `01b` 创建 `ai` 应用账号并授权，因此微服务不设置 `MYSQL_*` 也能用默认值连接。
+微服务的 `application-dev.yml` 会通过 `spring.config.import` 自动读取该文件（从仓库根或模块目录启动都能找到），因此**启动服务不需要手动 export**；`load-local-mysql-env.ps1` 仅用于初始化脚本和命令行。
 
 ## 初始化流程
 

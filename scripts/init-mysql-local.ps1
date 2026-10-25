@@ -1,4 +1,4 @@
-# 本地 MySQL：创建 ai_platform 库、应用账号、表结构与种子数据（手工 DDL）
+# 本地 MySQL：创建 ai_platform 库、表结构与种子数据（手工 DDL）
 param(
     [string]$DbHost = "127.0.0.1",
     [int]$Port = 3306,
@@ -34,10 +34,9 @@ if ($Recreate) {
 }
 
 Invoke-SqlFile (Join-Path $SqlDir "01-init-database.sql")
-Invoke-SqlFile (Join-Path $SqlDir "01b-grant-docker-user.sql")
 Invoke-SqlFile (Join-Path $SqlDir "02-schema.sql")
 Invoke-SqlFile (Join-Path $SqlDir "03-seed-data.sql")
 
 Write-Host ""
-Write-Host "库 ai_platform 已就绪（表结构 + 应用账号 ai + 演示账号）。可直接启动微服务。"
+Write-Host "库 ai_platform 已就绪（表结构 + 演示账号）。可直接启动微服务。"
 Write-Host "若曾用旧版结构，请加 -Recreate 重建库后再启动。"

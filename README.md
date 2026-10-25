@@ -37,10 +37,10 @@ JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node
 Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
 # 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
 .\scripts\load-local-mysql-env.ps1
-.\scripts\init-mysql-local.ps1          # 建库 + 应用账号 + 表 + 种子
+.\scripts\init-mysql-local.ps1          # 建库 + 表 + 种子
 ```
 
-初始化会创建应用账号 `ai / ai_dev_password`，微服务默认用它连接；`load-local-mysql-env.ps1` 导出的 root 账号主要给初始化脚本和命令行用。
+微服务启动时会自动从 `deploy/env/local-mysql.env` 读取 `MYSQL_*`（root），**不需要**手动 export；这个文件已被 gitignore。
 
 ### B. Docker（可选）
 
@@ -50,7 +50,7 @@ Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
 
 MySQL 3306 + Redis 6379。**空数据卷首次启动**会自动执行 `01 → 01b → 02 → 03`（建库、应用账号、业务表、演示账号）。
 
-存量数据卷不会重复初始化；需要重建时执行 `docker compose -f deploy/docker-compose.yml down -v` 再 `up`。Docker 环境使用应用账号 `ai / ai_dev_password`（见 `application-dev.yml` 默认值）。
+存量数据卷不会重复初始化；需要重建时执行 `docker compose -f deploy/docker-compose.yml down -v` 再 `up`。Docker 使用容器内应用账号 `ai / ai_dev_password`；微服务连 Docker MySQL 时要显式设置 `MYSQL_USER=ai`、`MYSQL_PASSWORD=ai_dev_password`（见 `deploy/env/deploy-mysql.env.example`）。
 
 ## 启动服务
 

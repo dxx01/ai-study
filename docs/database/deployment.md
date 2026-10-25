@@ -30,8 +30,8 @@ Compose 在 **数据卷为空** 时按文件名顺序自动执行：
 - `deploy/sql/02-schema.sql` — 业务表 DDL
 - `deploy/sql/03-seed-data.sql` — 演示账号
 
-> 已有数据卷不会再执行初始化脚本。存量库请手工执行 `02`、`03`，或运行
-> `.\scripts\init-mysql-local.ps1 -User root -Password root_dev`（连接 Docker 映射到本机的 3306）。
+> 已有数据卷不会再执行初始化脚本。存量库请手工执行 `02`、`03`；若应用账号 `ai` 不存在，再单独执行 `01b-grant-docker-user.sql`。
+> 也可运行 `.\scripts\init-mysql-local.ps1 -User root -Password root_dev` 只补建表与种子（本地脚本不再创建 `ai`）。
 
 ### 2. 推荐启动顺序（完整栈）
 
@@ -70,7 +70,7 @@ $env:MYSQL_PASSWORD = "ai_dev_password"
 | 维度 | 本地开发 | 部署（Compose） |
 |------|----------|-----------------|
 | 文档 | [local-development.md](local-development.md) | 本文 |
-| DB 账号 | root（管理）/ ai（应用） | ai / ai_dev_password |
+| DB 账号 | root（来自 `local-mysql.env`） | ai / ai_dev_password |
 | 初始化 | `init-mysql-local.ps1`（01+02+03） | 01+01b + 02+03 |
 
 逻辑表结构见 [schema.md](schema.md)。
