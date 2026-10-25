@@ -1,5 +1,7 @@
 # 分阶段路线图
 
+> 范围、非目标与验收指标见 [project-charter.md](project-charter.md)；本文只列任务。
+
 ## Phase 0 — 基线 ✅
 
 - [x] 微服务拆分、backend/frontend

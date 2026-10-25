@@ -1,6 +1,6 @@
 # AI 应用平台
 
-Spring Cloud 微服务 + Spring AI + Vue 3。协作见 [AGENTS.md](AGENTS.md)。
+Spring Cloud 微服务 + Spring AI + Vue 3。先读 [项目说明书](docs/project-charter.md) 明确范围与验收标准，协作约定见 [AGENTS.md](AGENTS.md)。
 
 ## 目录
 

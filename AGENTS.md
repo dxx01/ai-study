@@ -1,5 +1,9 @@
 # AI 应用平台 — Agent 协作约定
 
+## 先读
+
+- [docs/project-charter.md](docs/project-charter.md)：项目定位、范围、非目标、验收指标；新需求先过 Scope Guard。
+
 ## 微服务
 
 | 模块 | 端口 |
