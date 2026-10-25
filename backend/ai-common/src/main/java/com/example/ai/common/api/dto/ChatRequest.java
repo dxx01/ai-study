@@ -16,7 +16,9 @@ public record ChatRequest(
         String message,
         @Size(max = 64, message = "sessionId 过长")
         String sessionId,
-        ChatMode mode
+        ChatMode mode,
+        @Size(max = 64, message = "provider 过长")
+        String provider
 ) {
     public ChatRequest {
         if (mode == null) {

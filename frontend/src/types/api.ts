@@ -41,6 +41,13 @@ export interface ChatRequest {
   message: string
   sessionId?: string | null
   mode?: ChatMode
+  provider?: string
+}
+
+export interface ChatProviderInfo {
+  id: string
+  model: string
+  defaultProvider: boolean
 }
 
 export interface DocumentSummary {

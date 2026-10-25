@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { postChat } from '@/api/expert'
-import type { ChatMode, ChatResponse } from '@/types/api'
+import { listProviders, postChat } from '@/api/expert'
+import type { ChatMode, ChatProviderInfo, ChatResponse } from '@/types/api'
 import { renderMarkdown } from '@/utils/markdown'
 
 interface ChatMessage {
@@ -13,6 +13,8 @@ interface ChatMessage {
 
 const sessionId = ref<string | null>(null)
 const mode = ref<ChatMode>('AUTO')
+const provider = ref<string | undefined>()
+const providers = ref<ChatProviderInfo[]>([])
 const input = ref('')
 const loading = ref(false)
 const messages = ref<ChatMessage[]>([])
@@ -24,7 +26,18 @@ onMounted(() => {
     content:
       '你好，我是居家营养与健康科普顾问。我可以结合本地知识库回答膳食、运动与常见健康科普问题；涉及诊疗请及时就医。',
   })
+  void loadProviders()
 })
+
+async function loadProviders() {
+  try {
+    providers.value = await listProviders()
+    provider.value =
+      providers.value.find((item) => item.defaultProvider)?.id ?? providers.value[0]?.id
+  } catch {
+    // 模型列表不可用时使用后端默认提供方
+  }
+}
 
 async function scrollBottom() {
   await nextTick()
@@ -45,6 +58,7 @@ async function send() {
       message: text,
       sessionId: sessionId.value,
       mode: mode.value,
+      provider: provider.value,
     })
     sessionId.value = resp.sessionId
     messages.value.push({ role: 'assistant', content: resp.answer, meta: resp })
@@ -63,11 +77,27 @@ async function send() {
       <template #header>
         <div class="chat-header">
           <span>智能对话</span>
-          <el-radio-group v-model="mode" size="small">
-            <el-radio-button label="AUTO">自动</el-radio-button>
-            <el-radio-button label="LOCAL">仅本地</el-radio-button>
-            <el-radio-button label="WEB">联网</el-radio-button>
-          </el-radio-group>
+          <div class="chat-controls">
+            <el-select
+              v-if="providers.length"
+              v-model="provider"
+              size="small"
+              class="model-select"
+              placeholder="模型"
+            >
+              <el-option
+                v-for="item in providers"
+                :key="item.id"
+                :label="item.model"
+                :value="item.id"
+              />
+            </el-select>
+            <el-radio-group v-model="mode" size="small">
+              <el-radio-button label="AUTO">自动</el-radio-button>
+              <el-radio-button label="LOCAL">仅本地</el-radio-button>
+              <el-radio-button label="WEB">联网</el-radio-button>
+            </el-radio-group>
+          </div>
         </div>
       </template>
 
@@ -144,6 +174,16 @@ async function send() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.chat-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-select {
+  width: 150px;
 }
 
 .message-list {

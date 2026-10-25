@@ -6,6 +6,8 @@ import com.example.ai.common.api.ChatMode;
 import com.example.ai.common.api.dto.ChatRequest;
 import com.example.ai.common.api.dto.ChatResponse;
 import com.example.ai.common.security.AiPermissions;
+import com.example.ai.llm.model.ChatProviderInfo;
+import com.example.ai.llm.model.ChatProviderRegistry;
 import com.example.ai.llm.service.ChatOrchestrationService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 对话 API。
@@ -28,9 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
     private final ChatOrchestrationService chatOrchestrationService;
+    private final ChatProviderRegistry chatProviderRegistry;
 
-    public ChatController(ChatOrchestrationService chatOrchestrationService) {
+    public ChatController(ChatOrchestrationService chatOrchestrationService,
+                          ChatProviderRegistry chatProviderRegistry) {
         this.chatOrchestrationService = chatOrchestrationService;
+        this.chatProviderRegistry = chatProviderRegistry;
     }
 
     @SaCheckPermission(AiPermissions.CHAT)
@@ -43,7 +50,17 @@ public class ChatController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ChatResponse chatQuick(@RequestParam(defaultValue = "你好") String message,
                                   @RequestParam(required = false) String sessionId,
-                                  @RequestParam(required = false, defaultValue = "AUTO") ChatMode mode) {
-        return chatOrchestrationService.chat(new ChatRequest(message, sessionId, mode));
+                                  @RequestParam(required = false, defaultValue = "AUTO") ChatMode mode,
+                                  @RequestParam(required = false) String provider) {
+        return chatOrchestrationService.chat(new ChatRequest(message, sessionId, mode, provider));
+    }
+
+    /**
+     * @return 可用模型提供方（不含密钥）
+     */
+    @SaCheckPermission(AiPermissions.CHAT)
+    @GetMapping(value = "/providers", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ChatProviderInfo> providers() {
+        return chatProviderRegistry.list();
     }
 }

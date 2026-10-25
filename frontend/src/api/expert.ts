@@ -1,8 +1,13 @@
 import { http } from './http'
-import type { ChatRequest, ChatResponse, DocumentSummary } from '@/types/api'
+import type { ChatProviderInfo, ChatRequest, ChatResponse, DocumentSummary } from '@/types/api'
 
 export async function postChat(body: ChatRequest): Promise<ChatResponse> {
   const { data } = await http.post<ChatResponse>('/api/chat', body)
+  return data
+}
+
+export async function listProviders(): Promise<ChatProviderInfo[]> {
+  const { data } = await http.get<ChatProviderInfo[]>('/api/chat/providers')
   return data
 }
 

@@ -10,6 +10,12 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
@@ -32,6 +38,27 @@ app:
       - 不提供诊断、不开具处方、不替代线下医生
       - 涉及急症或严重症状时，优先建议立即就医或拨打 120
     disclaimer: 本助手仅提供健康科普与一般性建议，不构成医疗诊断或治疗方案；如有不适请及时就医。
+  # 多模型：每个 provider 都是 OpenAI 兼容端点，切换/新增只改配置
+  ai:
+    default-provider: ${AI_DEFAULT_PROVIDER:deepseek}
+    providers:
+      deepseek:
+        base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+        api-key: "${DEEPSEEK_API_KEY:${OPENAI_API_KEY:}}"
+        model: ${DEEPSEEK_MODEL:deepseek-chat}
+        temperature: 0.7
+        max-tokens: 2048
+      deepseek-flash:
+        base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+        api-key: "${DEEPSEEK_API_KEY:${OPENAI_API_KEY:}}"
+        model: ${DEEPSEEK_FLASH_MODEL:deepseek-flash}
+        temperature: 0.7
+        max-tokens: 2048
+      # 其他 OpenAI 兼容供应商示例，启用时填好 key 并删掉注释：
+      # qwen:
+      #   base-url: ${QWEN_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      #   api-key: ${QWEN_API_KEY:}
+      #   model: ${QWEN_MODEL:qwen-plus}
   web-search:
     enabled: ${WEB_SEARCH_ENABLED:false}
     tavily-api-key: ${TAVILY_API_KEY:}

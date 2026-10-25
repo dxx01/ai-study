@@ -49,6 +49,15 @@ mvn -pl backend/ai-gateway spring-boot:run
   没有该文件时回退到远程模型。也可用 `EMBEDDING_MODEL_URI` / `EMBEDDING_TOKENIZER_URI` 覆盖路径。
 - 该默认模型以英文语料为主，中文检索效果有限，属于 [roadmap](roadmap.md) Phase 3 的改造点。
 
+## 多模型配置
+
+- `app.ai.providers` 下每个条目是一个 **OpenAI 兼容端点**，启动时由 `ChatProviderRegistry` 构建独立的 `ChatClient`。
+- 默认带两个示例：`deepseek`（`deepseek-chat`）和 `deepseek-flash`；切换默认用 `AI_DEFAULT_PROVIDER`。
+- 新增供应商（Qwen / Moonshot / OpenAI / Ollama 等）只需在 `application.yml` 的 `app.ai.providers` 增加一条：
+  `base-url`、`api-key`、`model`。原生协议（Anthropic/Gemini）需要另写适配器。
+- 前端对话页的模型下拉来自 `GET /api/chat/providers`，请求体用 `provider` 字段选择；接口**不返回密钥**。
+- 当前每个 provider 的 key 仍在 `ai-service-llm`，符合 [data-security.md](standards/data-security.md) 的密钥边界。
+
 ## API 示例
 
 ```powershell

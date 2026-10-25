@@ -3,7 +3,9 @@ package com.example.ai.llm.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * LLM 服务配置（专家画像、联网、下游服务地址）。
@@ -15,6 +17,7 @@ import java.util.List;
 public class LlmProperties {
 
     private Expert expert = new Expert();
+    private Ai ai = new Ai();
     private WebSearch webSearch = new WebSearch();
     private RateLimit rateLimit = new RateLimit();
     private Services services = new Services();
@@ -25,6 +28,14 @@ public class LlmProperties {
 
     public void setExpert(Expert expert) {
         this.expert = expert;
+    }
+
+    public Ai getAi() {
+        return ai;
+    }
+
+    public void setAi(Ai ai) {
+        this.ai = ai;
     }
 
     public WebSearch getWebSearch() {
@@ -49,6 +60,75 @@ public class LlmProperties {
 
     public void setServices(Services services) {
         this.services = services;
+    }
+
+    public static class Ai {
+        private String defaultProvider = "deepseek";
+        private Map<String, Provider> providers = new LinkedHashMap<>();
+
+        public String getDefaultProvider() {
+            return defaultProvider;
+        }
+
+        public void setDefaultProvider(String defaultProvider) {
+            this.defaultProvider = defaultProvider;
+        }
+
+        public Map<String, Provider> getProviders() {
+            return providers;
+        }
+
+        public void setProviders(Map<String, Provider> providers) {
+            this.providers = providers;
+        }
+
+        public static class Provider {
+            private String baseUrl;
+            private String apiKey;
+            private String model;
+            private Double temperature = 0.7;
+            private Integer maxTokens = 2048;
+
+            public String getBaseUrl() {
+                return baseUrl;
+            }
+
+            public void setBaseUrl(String baseUrl) {
+                this.baseUrl = baseUrl;
+            }
+
+            public String getApiKey() {
+                return apiKey;
+            }
+
+            public void setApiKey(String apiKey) {
+                this.apiKey = apiKey;
+            }
+
+            public String getModel() {
+                return model;
+            }
+
+            public void setModel(String model) {
+                this.model = model;
+            }
+
+            public Double getTemperature() {
+                return temperature;
+            }
+
+            public void setTemperature(Double temperature) {
+                this.temperature = temperature;
+            }
+
+            public Integer getMaxTokens() {
+                return maxTokens;
+            }
+
+            public void setMaxTokens(Integer maxTokens) {
+                this.maxTokens = maxTokens;
+            }
+        }
     }
 
     public static class Expert {

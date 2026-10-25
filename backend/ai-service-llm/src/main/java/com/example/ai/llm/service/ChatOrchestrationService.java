@@ -10,6 +10,7 @@ import com.example.ai.common.api.dto.SourceCitation;
 import com.example.ai.llm.client.ConversationServiceClient;
 import com.example.ai.llm.client.KnowledgeServiceClient;
 import com.example.ai.llm.config.LlmProperties;
+import com.example.ai.llm.model.ChatProviderRegistry;
 import com.example.ai.llm.ratelimit.ChatRateLimitService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,25 +38,25 @@ public class ChatOrchestrationService {
 
     private static final int HISTORY_LIMIT = 20;
 
-    private final ChatClient chatClient;
     private final LlmProperties properties;
     private final KnowledgeServiceClient knowledgeServiceClient;
     private final ConversationServiceClient conversationServiceClient;
     private final WebSearchService webSearchService;
     private final ChatRateLimitService rateLimitService;
+    private final ChatProviderRegistry providerRegistry;
 
-    public ChatOrchestrationService(ChatClient expertChatClient,
-                                    LlmProperties properties,
+    public ChatOrchestrationService(LlmProperties properties,
                                     KnowledgeServiceClient knowledgeServiceClient,
                                     ConversationServiceClient conversationServiceClient,
                                     WebSearchService webSearchService,
-                                    ChatRateLimitService rateLimitService) {
-        this.chatClient = expertChatClient;
+                                    ChatRateLimitService rateLimitService,
+                                    ChatProviderRegistry providerRegistry) {
         this.properties = properties;
         this.knowledgeServiceClient = knowledgeServiceClient;
         this.conversationServiceClient = conversationServiceClient;
         this.webSearchService = webSearchService;
         this.rateLimitService = rateLimitService;
+        this.providerRegistry = providerRegistry;
     }
 
     /**
@@ -64,6 +65,8 @@ public class ChatOrchestrationService {
      */
     public ChatResponse chat(ChatRequest request) {
         rateLimitService.check(StpUtil.getLoginIdAsLong());
+        String provider = resolveProvider(request.provider());
+        ChatClient chatClient = providerRegistry.client(provider);
         String authorization = authorizationHeader();
         String sessionId = resolveSessionId(request.sessionId(), authorization);
 
@@ -134,8 +137,17 @@ public class ChatOrchestrationService {
         return "Bearer " + StpUtil.getTokenValue();
     }
 
-    private ChatMode resolveMode(ChatMode requested, String message) {
-        if (requested != ChatMode.AUTO) {
+    private String resolveProvider(String requested) {
+        if (requested == null || requested.isBlank()) {
+            return providerRegistry.defaultProvider();
+        }
+        if (!providerRegistry.contains(requested)) {
+            throw new IllegalArgumentException("未知的模型提供方: " + requested);
+        }
+        return requested;
+    }
+
+    private ChatMode resolveMode(ChatMode requested, String message) {        if (requested != ChatMode.AUTO) {
             return requested;
         }
         if (webSearchService.isAvailable() && WEB_INTENT.matcher(message).find()) {
