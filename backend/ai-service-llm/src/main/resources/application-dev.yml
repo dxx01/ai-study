@@ -2,6 +2,8 @@ spring:
   config:
     import:
       - optional:file:./.env.dev.properties
+      - optional:file:../../backend/ai-service-llm/.env.dev.properties
+      - optional:file:./backend/ai-service-llm/.env.dev.properties
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}

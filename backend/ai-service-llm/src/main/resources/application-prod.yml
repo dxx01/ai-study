@@ -2,3 +2,5 @@ spring:
   config:
     import:
       - optional:file:./.env.prod.properties
+      - optional:file:../../backend/ai-service-llm/.env.prod.properties
+      - optional:file:./backend/ai-service-llm/.env.prod.properties
