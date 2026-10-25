@@ -1,0 +1,38 @@
+---
+description: 前端（TypeScript/Vue/React 等）编码与组件约定；仅在编辑前端文件时生效
+globs: **/*.{ts,tsx,js,jsx,vue,css,scss,less,html}
+alwaysApply: false
+---
+
+# 前端编码规范
+
+适用于本仓库内 **TypeScript/JavaScript/Vue/React** 及样式、静态页。与 Java 规范 **互不替代**：仅在前端文件上下文中生效。
+
+## 1. 结构与命名
+
+- 组件文件：**PascalCase**（如 `ExpertChatPanel.vue` / `ChatPanel.tsx`）；组合式函数、工具：**camelCase**。
+- 优先 **函数式组件** 与组合式 API；可复用逻辑提取为 composable/hook，避免超大单文件（建议单文件不超过 250 行，超出则拆分）。
+- 目录按 **功能或路由** 划分，避免按文件类型扁平堆叠。
+
+## 2. TypeScript 与 API
+
+- 新代码优先 **TypeScript**；禁止无必要的 `any`，对外 API 与 props 定义明确类型或接口。
+- 调用后端 REST 时：请求/响应类型与后端 DTO 命名对齐；错误态统一处理（用户可读文案 + 日志），不把堆栈直接展示给用户。
+- 环境相关配置走 **环境变量**（如 `import.meta.env` / `.env`），禁止硬编码密钥与生产 URL。
+
+## 3. 样式与 UI
+
+- 优先使用项目已选方案（Tailwind / CSS Modules / scoped SCSS 等），**不要混用多套互斥方案**。
+- 可访问性：表单控件有 label 或 `aria-*`；交互元素可键盘聚焦。
+
+## 4. 注释与协作
+
+- 复杂业务分支、权限/路由守卫、与后端字段映射处写 **简短中文注释**（说明「为什么」）。
+- 文件头可选块注释说明模块职责；**不要**要求 `@author` Javadoc 式作者块（与 Java 规范区分）。
+
+## 5. 交付前自检
+
+- [ ] 类型完整、无随意 `any`
+- [ ] 无硬编码密钥与内网地址
+- [ ] 组件职责单一，重复 UI 已抽取
+- [ ] 与 Java 后端接口字段、错误码约定一致（若本任务涉及联调）

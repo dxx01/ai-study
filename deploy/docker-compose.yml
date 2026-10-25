@@ -1,0 +1,36 @@
+# 部署/联调基础设施：MySQL（仅建库+应用账号）+ Redis
+# 业务表见 deploy/sql/02-schema.sql、03-seed-data.sql，见 docs/database/deployment.md
+services:
+  mysql:
+    image: mysql:8.4
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev
+      MYSQL_DATABASE: ai_platform
+      MYSQL_USER: ai
+      MYSQL_PASSWORD: ai_dev_password
+    command: >
+      mysqld
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ai_platform_mysql_data:/var/lib/mysql
+      - ./sql/01-init-database.sql:/docker-entrypoint-initdb.d/01-init-database.sql:ro
+      - ./sql/01b-grant-docker-user.sql:/docker-entrypoint-initdb.d/02-grant-docker-user.sql:ro
+      - ./sql/02-schema.sql:/docker-entrypoint-initdb.d/03-schema.sql:ro
+      - ./sql/03-seed-data.sql:/docker-entrypoint-initdb.d/04-seed-data.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uai", "-pai_dev_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+
+volumes:
+  ai_platform_mysql_data:

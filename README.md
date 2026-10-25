@@ -1,48 +1,103 @@
-# ai-study
+# AI 应用平台
 
-面向 Java 开发者的 AI 应用学习仓库，逐步练习 **Spring AI** 与 **LangChain4j**。
+Spring Cloud 微服务 + Spring AI + Vue 3。协作见 [AGENTS.md](AGENTS.md)。
 
-## 目录结构
+## 目录
 
-| 模块 | 说明 |
-|------|------|
-| [`spring-ai-demo`](spring-ai-demo/) | Spring Boot + Spring AI（ChatClient / REST 示例） |
-| [`langchain4j-demo`](langchain4j-demo/) | 纯 Java + LangChain4j（命令行对话示例） |
-
-## 环境要求
-
-- JDK **17+**（推荐 21）
-- Maven **3.9+**
-- 兼容 OpenAI API 的密钥（或 DeepSeek、通义等，按各模块 README 配置）
-
-## 快速开始
-
-```bash
-# 编译全部模块
-mvn -q clean verify
-
-# Spring AI Web 示例
-cd spring-ai-demo
-cp .env.example .env   # 填入 API Key 后
-mvn spring-boot:run
-
-# LangChain4j 命令行示例
-cd langchain4j-demo
-cp .env.example .env
-mvn exec:java
+```
+backend/          # ai-gateway, ai-auth, ai-service-*
+frontend/
+deploy/           # Docker Compose、deploy/sql（建库 → 授权 → 建表 → 种子）
+docs/
+  database/       # schema / 本地 / 部署（分文档）
+  standards/      # 数据库与数据访问规范
 ```
 
-## 建议学习路径
+## 要求
 
-1. 先跑通 `langchain4j-demo`，理解 Model / Prompt / 一次对话调用链。
-2. 再跑通 `spring-ai-demo`，对比 Spring 生态下的自动配置与 `ChatClient`。
-3. 在本仓库新增分支或子模块，练习：RAG、Function Calling、多模型切换等。
+JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node **18+**（Vite 6）。Node 未安装时可用 `winget install OpenJS.NodeJS.LTS` 或 fnm/nvm。
 
-## 参考文档
+## 数据库（请先读）
 
-- [Spring AI Reference](https://docs.spring.io/spring-ai/reference/)
-- [LangChain4j Documentation](https://docs.langchain4j.dev/)
+| 场景 | 文档 |
+|------|------|
+| 表结构 | [docs/database/schema.md](docs/database/schema.md) |
+| 本机 MySQL | [docs/database/local-development.md](docs/database/local-development.md) |
+| Docker 部署 | [docs/database/deployment.md](docs/database/deployment.md) |
 
-## 许可证
+表结构以 `deploy/sql/02-schema.sql` 为准（手工 DDL，前期不用 Flyway），改表时同步实体与 `schema.md`。
 
-MIT（示例代码可自由修改用于学习）
+## 启动基础设施（二选一）
+
+### A. 本机 MySQL（无需 Docker，当前机器可用）
+
+首次先把密码写进 gitignored 的 env 文件：
+
+```powershell
+Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
+# 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
+.\scripts\load-local-mysql-env.ps1
+.\scripts\init-mysql-local.ps1          # 建库 + 表 + 种子
+```
+
+`init-mysql-local.ps1` 支持 `-User` / `-Password` 覆盖默认账号，`-Recreate` 重建库（会丢数据）。本机 MySQL 与 Redis 需已启动。
+
+### B. Docker（可选）
+
+```powershell
+.\scripts\dev-up.ps1
+```
+
+MySQL 3306 + Redis 6379。**空数据卷首次启动**会自动执行 `01 → 01b → 02 → 03`（建库、应用账号、业务表、演示账号）。
+
+存量数据卷不会重复初始化；需要重建时执行 `docker compose -f deploy/docker-compose.yml down -v` 再 `up`。Docker 环境使用应用账号 `ai / ai_dev_password`（见 `application-dev.yml` 默认值）。
+
+## 启动服务
+
+首次先把模块安装到本地仓库（`-pl` 单模块启动依赖它）：
+
+```powershell
+.\scripts\use-jdk17.ps1
+mvn -q -DskipTests install
+```
+
+按顺序各开一个终端：
+
+```powershell
+mvn -pl backend/ai-auth spring-boot:run
+mvn -pl backend/ai-service-knowledge spring-boot:run
+mvn -pl backend/ai-service-conversation spring-boot:run
+mvn -pl backend/ai-service-llm spring-boot:run
+mvn -pl backend/ai-gateway spring-boot:run
+```
+
+> 知识库服务首次启动会从 GitHub 下载 `all-MiniLM-L6-v2` ONNX 模型（约 90MB），缓存到 `backend/ai-service-knowledge/data/model-cache`；网络受限时会卡住或超时，见 [docs/microservices.md](docs/microservices.md)。后续应换成本地中文模型或 embedding API。
+
+前端：
+
+```powershell
+cd frontend
+npm install        # 首次，需要 Node 18+
+npm run dev        # http://localhost:5173
+```
+
+LLM 密钥放在 `backend/ai-service-llm/.env.dev.properties`（已被 gitignore）。演示账号 `admin/admin123`、`user/user123`。
+
+## 四步冒烟
+
+1. 打开 http://localhost:5173，用 `admin/admin123` 登录
+2. 发送“你好”，应返回回答与免责声明
+3. 知识库页上传一个 PDF/Word，列表出现文档 ID 与分块数
+4. 再提问文档里的内容，回答应带“参考依据”
+
+任何一步失败，先修这一步，再继续。
+
+## 构建与测试
+
+```powershell
+mvn clean verify
+```
+
+受限环境（沙箱/部分 CI）里 Mockito 无法外部 attach，可加 `-DargLine="-Djdk.attach.allowAttachSelf=true"`；普通 IDE 与 CI 不需要。
+
+更多：[docs/microservices.md](docs/microservices.md)、[docs/roadmap.md](docs/roadmap.md)。

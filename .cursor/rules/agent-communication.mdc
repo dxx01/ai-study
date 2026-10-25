@@ -1,0 +1,11 @@
+---
+description: 本仓库 Agent 对话与文档类任务的通用约定（与具体编程语言无关）
+alwaysApply: true
+---
+
+# Agent 通用约定（ai-study）
+
+- 与用户沟通默认使用 **简体中文**。
+- 引用仓库内已有代码时使用 Cursor 代码引用格式：`startLine:endLine:filepath`。
+- 只改与任务相关的文件；未要求时不扩大范围、不主动 commit/push。
+- 编写或修改 **Java/Kotlin** 时遵守 `@java-enterprise-coding-standards`；编写或修改 **前端** 时遵守 `@frontend-standards`。

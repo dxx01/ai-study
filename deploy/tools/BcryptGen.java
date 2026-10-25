@@ -1,0 +1,1 @@
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; public class BcryptGen { public static void main(String[] a){ BCryptPasswordEncoder e=new BCryptPasswordEncoder(); System.out.println(e.encode("admin123")); System.out.println(e.encode("user123")); }}
