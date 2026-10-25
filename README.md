@@ -72,8 +72,8 @@ mvn -pl backend/ai-gateway spring-boot:run
 ```
 
 > 知识库默认首次启动会从 GitHub 下载 `all-MiniLM-L6-v2` ONNX 模型（约 90MB），缓存到 `backend/ai-service-knowledge/data/model-cache`；网络受限会卡住。
-> 可先把 `model.onnx` / `tokenizer.json` 放到 `data/model-cache/all-MiniLM-L6-v2/`，再用本地模型 profile 启动：
-> `mvn -pl backend/ai-service-knowledge spring-boot:run "-Dspring-boot.run.profiles=dev,local-model"`。详见 [docs/microservices.md](docs/microservices.md)。
+> 可先把 `model.onnx` / `tokenizer.json` 放到 `data/model-cache/all-MiniLM-L6-v2/`，运行 `.\scripts\use-local-embedding-model.ps1` 生成本地配置；
+> 之后正常启动会自动使用本地模型，**不需要加任何参数**。详见 [docs/microservices.md](docs/microservices.md)。
 
 前端：
 

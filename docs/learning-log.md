@@ -10,7 +10,7 @@
 - 统一“手工 DDL”为唯一事实源，清理 Flyway 相关文档。
 - Docker 空数据卷首次启动自动建库、建表、写入演示账号。
 - 修复 3 个运行时缺陷（登录权限、`@PathVariable`、网关 401）。
-- 排除知识库/LLM 无用的 DataSource 自动装配，增加本地模型 profile。
+- 排除知识库/LLM 无用的 DataSource 自动装配，增加本地模型自动配置（`local-model.properties`）。
 - 补 Spring Boot `repackage`，产出可执行 jar。
 - 本地数据库密码移入 gitignored 的 `deploy/env/local-mysql.env`。
 - 增加项目说明书，明确范围、非目标与验收指标。
@@ -39,7 +39,7 @@
 4. **`java -jar` 没有主清单**：同样因为不使用 parent，`repackage` 不会自动绑定。  
    教训：`spring-boot-maven-plugin` 要显式声明 `repackage` execution。
 5. **知识库启动卡在模型下载**：默认 ONNX 模型从 GitHub 拉取，国内网络极易卡住。  
-   教训：涉及外部模型/权重的服务，必须提供缓存目录、离线文件和环境变量覆盖；已增加 `local-model` profile。
+   教训：涉及外部模型/权重的服务，必须提供缓存目录、离线文件与自动探测；已改为 `local-model.properties` 自动加载。
 6. **纯 Redis 服务却要 DataSource**：`ai-common` 传递了 MyBatis-Plus/JDBC，knowledge/llm 启动时报 `Failed to configure a DataSource`。  
    教训：公共模块要区分“编译依赖”和“运行依赖”；当前用 `spring.autoconfigure.exclude` 排除 `DataSourceAutoConfiguration`，后续可拆公共模块。
 

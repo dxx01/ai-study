@@ -6,6 +6,12 @@ spring:
     name: ai-service-knowledge
   profiles:
     active: dev
+  # 若已生成本地模型配置则自动使用，避免每次访问 GitHub；缺省回退到远程模型
+  config:
+    import:
+      - optional:file:./data/model-cache/local-model.properties
+      - optional:file:../../backend/ai-service-knowledge/data/model-cache/local-model.properties
+      - optional:file:./backend/ai-service-knowledge/data/model-cache/local-model.properties
   # ai-common 传递了 MyBatis-Plus/JDBC，但本服务只用 Redis + 向量库，不需要 DataSource
   autoconfigure:
     exclude:
