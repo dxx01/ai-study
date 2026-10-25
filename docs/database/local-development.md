@@ -9,8 +9,8 @@
 | 主机 | `127.0.0.1` |
 | 端口 | `3306` |
 | 库名 | `ai_platform` |
-| 账号 | `root` |
-| 密码 | 见 `deploy/env/local-mysql.env`（已 gitignore，模板 `local-mysql.env.example`） |
+| 管理账号 | `root`（密码见 `deploy/env/local-mysql.env`，已 gitignore） |
+| 应用账号 | `ai` / `ai_dev_password`（`init-mysql-local.ps1` 创建，微服务默认使用） |
 
 JDBC（与 `application-dev.yml` 一致，时区 **Asia/Shanghai**）：
 
@@ -20,13 +20,15 @@ jdbc:mysql://127.0.0.1:3306/ai_platform?useUnicode=true&characterEncoding=utf8&s
 
 ## 环境变量
 
-首次复制模板并填写本机 root 密码（`local-mysql.env` 已被 gitignore）：
+root 账号只用于初始化与命令行；`local-mysql.env` 已被 gitignore：
 
 ```powershell
 Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
 # 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
 .\scripts\load-local-mysql-env.ps1
 ```
+
+初始化脚本会执行 `01b` 创建 `ai` 应用账号并授权，因此微服务不设置 `MYSQL_*` 也能用默认值连接。
 
 ## 初始化流程
 

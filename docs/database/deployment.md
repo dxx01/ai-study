@@ -70,7 +70,7 @@ $env:MYSQL_PASSWORD = "ai_dev_password"
 | 维度 | 本地开发 | 部署（Compose） |
 |------|----------|-----------------|
 | 文档 | [local-development.md](local-development.md) | 本文 |
-| DB 账号 | root / 见 `local-mysql.env` | ai / ai_dev_password |
+| DB 账号 | root（管理）/ ai（应用） | ai / ai_dev_password |
 | 初始化 | `init-mysql-local.ps1`（01+02+03） | 01+01b + 02+03 |
 
 逻辑表结构见 [schema.md](schema.md)。

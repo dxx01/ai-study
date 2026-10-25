@@ -37,10 +37,10 @@ JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node
 Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
 # 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
 .\scripts\load-local-mysql-env.ps1
-.\scripts\init-mysql-local.ps1          # 建库 + 表 + 种子
+.\scripts\init-mysql-local.ps1          # 建库 + 应用账号 + 表 + 种子
 ```
 
-`init-mysql-local.ps1` 支持 `-User` / `-Password` 覆盖默认账号，`-Recreate` 重建库（会丢数据）。本机 MySQL 与 Redis 需已启动。
+初始化会创建应用账号 `ai / ai_dev_password`，微服务默认用它连接；`load-local-mysql-env.ps1` 导出的 root 账号主要给初始化脚本和命令行用。
 
 ### B. Docker（可选）
 

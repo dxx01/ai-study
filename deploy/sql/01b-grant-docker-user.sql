@@ -1,4 +1,4 @@
--- Docker Compose 专用：应用账号 ai / ai_dev_password
+-- 应用账号 ai / ai_dev_password（Docker Compose 与本地初始化共用）
 CREATE USER IF NOT EXISTS 'ai'@'%' IDENTIFIED BY 'ai_dev_password';
 CREATE USER IF NOT EXISTS 'ai'@'localhost' IDENTIFIED BY 'ai_dev_password';
 
