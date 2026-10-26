@@ -1,7 +1,7 @@
 package com.example.ai.knowledge.web;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.stp.StpUtil;
 import com.example.ai.common.api.dto.DocumentSummary;
 import com.example.ai.common.api.dto.KnowledgeSearchHit;
 import com.example.ai.common.api.dto.KnowledgeSearchRequest;
@@ -27,7 +27,6 @@ import java.util.Map;
  * @author 邓鑫鑫
  * @since 0.3.0
  */
-@SaCheckLogin
 @RestController
 @RequestMapping("/api/knowledge")
 public class KnowledgeController {
@@ -44,19 +43,22 @@ public class KnowledgeController {
     @SaCheckPermission(AiPermissions.CHAT)
     @PostMapping(value = "/search", consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<KnowledgeSearchHit> search(@Valid @RequestBody KnowledgeSearchRequest request) {
-        return knowledgeIngestionService.searchHits(request.query());
+        return knowledgeIngestionService.searchHits(request.query(), request.appId());
     }
 
     @SaCheckPermission(AiPermissions.KNOWLEDGE_WRITE)
     @PostMapping(value = "/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public DocumentSummary upload(@RequestParam("file") MultipartFile file) throws IOException {
-        return knowledgeIngestionService.ingest(file);
+    public DocumentSummary upload(@RequestParam("file") MultipartFile file,
+                                  @RequestParam(value = "appId", defaultValue = "health") String appId,
+                                  @RequestParam(value = "category", defaultValue = "0") int category)
+            throws IOException {
+        return knowledgeIngestionService.ingest(file, StpUtil.getLoginIdAsLong(), appId, category);
     }
 
     @SaCheckPermission(AiPermissions.KNOWLEDGE_READ)
     @GetMapping("/documents")
-    public List<DocumentSummary> list() {
-        return knowledgeIngestionService.listDocuments();
+    public List<DocumentSummary> list(@RequestParam(value = "appId", defaultValue = "health") String appId) {
+        return knowledgeIngestionService.listDocuments(appId);
     }
 
     @SaCheckPermission(AiPermissions.KNOWLEDGE_ADMIN)
@@ -65,7 +67,7 @@ public class KnowledgeController {
         knowledgeIngestionService.reloadFromDisk();
         return Map.of(
                 "reloaded", true,
-                "documentCount", knowledgeIngestionService.listDocuments().size()
+                "documentCount", knowledgeIngestionService.countAllDocuments()
         );
     }
 }

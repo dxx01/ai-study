@@ -1,5 +1,7 @@
 package com.example.ai.auth.web.dto;
 
+import com.example.ai.common.api.dto.MenuItem;
+
 import java.util.List;
 
 /**
@@ -12,6 +14,7 @@ public record UserInfoResponse(
         String loginId,
         String username,
         List<String> roles,
-        List<String> permissions
+        List<String> permissions,
+        List<MenuItem> menus
 ) {
 }

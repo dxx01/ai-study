@@ -1,0 +1,22 @@
+# Nacos 公共配置（各服务启动时从 Nacos 拉取）
+# Sa-Token 见 ai-common/config/satoken-common.yml（通过 spring.config.import 引入）
+spring:
+  config:
+    import: optional:classpath:config/satoken-common.yml
+  data:
+    redis:
+      database: 0
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.example.ai: INFO

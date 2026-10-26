@@ -3,13 +3,16 @@ package com.example.ai.conversation.service;
 import com.example.ai.common.api.dto.AppendMessageRequest;
 import com.example.ai.common.api.dto.ConversationMessageDto;
 import com.example.ai.common.api.dto.CreateSessionResponse;
+import com.example.ai.common.mybatis.DbTimeZones;
 import com.example.ai.conversation.domain.ChatMessageEntity;
 import com.example.ai.conversation.domain.ChatSessionEntity;
 import com.example.ai.conversation.mapper.ChatMessageMapper;
 import com.example.ai.conversation.mapper.ChatSessionMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +45,8 @@ public class ConversationService {
         ChatSessionEntity session = new ChatSessionEntity();
         session.setId(UUID.randomUUID().toString());
         session.setOwnerUserId(ownerUserId);
+        session.setTitle("新对话");
+        session.setMessageCount(0);
         sessionMapper.insert(session);
         return new CreateSessionResponse(session.getId());
     }
@@ -71,16 +76,42 @@ public class ConversationService {
      */
     @Transactional
     public void appendMessage(String sessionId, Long ownerUserId, AppendMessageRequest request) {
-        requireSession(sessionId, ownerUserId);
+        ChatSessionEntity session = requireSession(sessionId, ownerUserId);
         ChatMessageEntity message = new ChatMessageEntity();
         message.setSessionId(sessionId);
         message.setRole(request.role());
         message.setContent(request.content());
+        message.setProvider(request.provider());
+        message.setModel(request.model());
+        message.setPromptTokens(request.promptTokens());
+        message.setCompletionTokens(request.completionTokens());
+        message.setLatencyMs(request.latencyMs());
+        message.setFinishReason(request.finishReason());
+        message.setTraceId(request.traceId());
         messageMapper.insert(message);
 
-        ChatSessionEntity touch = new ChatSessionEntity();
-        touch.setId(sessionId);
-        sessionMapper.updateById(touch);
+        LocalDateTime now = LocalDateTime.now(DbTimeZones.SHANGHAI);
+        var update = Wrappers.<ChatSessionEntity>lambdaUpdate()
+                .eq(ChatSessionEntity::getId, sessionId)
+                .setSql("message_count = message_count + 1")
+                .set(ChatSessionEntity::getLastMessageAt, now)
+                .set(ChatSessionEntity::getUpdatedAt, now);
+        if ("user".equals(request.role()) && isDefaultTitle(session.getTitle())) {
+            update.set(ChatSessionEntity::getTitle, titleFrom(request.content()));
+        }
+        sessionMapper.update(null, update);
+    }
+
+    private static boolean isDefaultTitle(String title) {
+        return title == null || title.isBlank() || "新对话".equals(title);
+    }
+
+    private static String titleFrom(String content) {
+        String text = content == null ? "" : content.strip().replaceAll("\\s+", " ");
+        if (text.isEmpty()) {
+            return "新对话";
+        }
+        return text.length() <= 30 ? text : text.substring(0, 30) + "…";
     }
 
     private ChatSessionEntity requireSession(String sessionId, Long ownerUserId) {

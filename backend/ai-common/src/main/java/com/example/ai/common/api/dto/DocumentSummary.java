@@ -10,6 +10,8 @@ import java.time.Instant;
  */
 public record DocumentSummary(
         String documentId,
+        String appId,
+        int category,
         String fileName,
         long sizeBytes,
         Instant uploadedAt,

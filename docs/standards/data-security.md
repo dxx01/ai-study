@@ -17,7 +17,8 @@
 
 ## 2. 鉴权与隔离
 
-- 数据查询必须在 **后端** 校验 Sa-Token 登录态与权限码  
+- 公网入口仅在 **网关** 做登录校验（白名单 / 黑名单配置见 [gateway-auth.md](gateway-auth.md)）
+- 数据查询必须在 **后端** 校验 Sa-Token 登录态与权限码（`@SaCheckPermission`）  
 - 会话/消息：必须校验 **owner_user_id** 与当前 `StpUtil.getLoginIdAsLong()` 一致  
 - 禁止根据客户端任意传入的 userId 查询他人数据  
 

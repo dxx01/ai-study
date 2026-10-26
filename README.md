@@ -27,6 +27,28 @@ JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node
 
 表结构以 `deploy/sql/02-schema.sql` 为准（手工 DDL，前期不用 Flyway），改表时同步实体与 `schema.md`。
 
+## 本地 / 服务器配置切换
+
+两套配置互不影响，平时开发默认本地：
+
+```powershell
+# 本地 MySQL + Redis（默认 dev）
+.\scripts\switch-profile.ps1 -Target local
+
+# 服务器 47.120.50.85 的 MySQL + Redis（server profile）
+.\scripts\switch-profile.ps1 -Target server
+```
+
+维护 `deploy/env/local.env` 或 `server.env`（仅 MySQL/Redis 不同），执行 `.\scripts\use-env.ps1 -Target local|server` 生成 `current.env`；各服务启动读 `current.env` 并注册 Nacos。另开窗口 `.\scripts\start-nacos-tunnel.ps1`（未放行公网 8848 时）。**IDEA 不必设 Active profiles**。
+
+服务器 `server` profile 还依赖 Nacos（服务发现 + 配置中心）。安全组未放行 8848/9848 时，先在单独窗口运行：
+
+```powershell
+.\scripts\start-nacos-tunnel.ps1
+```
+
+再切到 server。Nacos 控制台（隧道）：`http://127.0.0.1:8848/nacos/`。
+
 ## 启动基础设施（二选一）
 
 ### A. 本机 MySQL（无需 Docker，当前机器可用）
@@ -34,13 +56,13 @@ JDK **17+**（`.\scripts\use-jdk17.ps1`）、Maven 3.9+、MySQL 8、Redis、Node
 首次先把密码写进 gitignored 的 env 文件：
 
 ```powershell
-Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
-# 编辑 deploy\env\local-mysql.env，填写 MYSQL_PASSWORD
-.\scripts\load-local-mysql-env.ps1
+# 编辑 deploy\env\local.env，填写 MYSQL_PASSWORD
+.\scripts\use-env.ps1 -Target local
+.\scripts\load-local-env.ps1
 .\scripts\init-mysql-local.ps1          # 建库 + 表 + 种子
 ```
 
-微服务启动时会自动从 `deploy/env/local-mysql.env` 读取 `MYSQL_*`（root），**不需要**手动 export；这个文件已被 gitignore。
+微服务从 `deploy/env/current.env` 读取连接信息（由 `use-env.ps1` 从 `local.env` 同步），**不需要**手动 export。
 
 ### B. Docker（可选）
 
@@ -50,7 +72,7 @@ Copy-Item deploy\env\local-mysql.env.example deploy\env\local-mysql.env
 
 MySQL 3306 + Redis 6379。**空数据卷首次启动**会自动执行 `01 → 01b → 02 → 03`（建库、应用账号、业务表、演示账号）。
 
-存量数据卷不会重复初始化；需要重建时执行 `docker compose -f deploy/docker-compose.yml down -v` 再 `up`。Docker 使用容器内应用账号 `ai / ai_dev_password`；微服务连 Docker MySQL 时要显式设置 `MYSQL_USER=ai`、`MYSQL_PASSWORD=ai_dev_password`（见 `deploy/env/deploy-mysql.env.example`）。
+存量数据卷不会重复初始化；需要重建时执行 `docker compose -f deploy/docker-compose.yml down -v` 再 `up`。Docker MySQL 账号 `ai / ai_dev_password` 写入 `local.env` 即可。
 
 ## 启动服务
 

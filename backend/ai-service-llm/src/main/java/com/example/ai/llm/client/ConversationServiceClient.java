@@ -64,11 +64,33 @@ public class ConversationServiceClient {
      * @param authorization token
      */
     public void appendMessage(String sessionId, String role, String content, String authorization) {
+        appendMessage(sessionId, role, content, authorization, null, null);
+    }
+
+    /**
+     * @param sessionId 会话
+     * @param role 角色
+     * @param content 内容
+     * @param authorization token
+     * @param provider 模型提供方
+     * @param model 模型名
+     */
+    public void appendMessage(String sessionId, String role, String content, String authorization,
+                              String provider, String model) {
+        appendMessage(sessionId, new AppendMessageRequest(role, content, provider, model), authorization);
+    }
+
+    /**
+     * @param sessionId 会话
+     * @param request 消息与模型元数据
+     * @param authorization token
+     */
+    public void appendMessage(String sessionId, AppendMessageRequest request, String authorization) {
         restClient.post()
                 .uri("/api/conversation/sessions/{sessionId}/messages", sessionId)
                 .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new AppendMessageRequest(role, content))
+                .body(request)
                 .retrieve()
                 .toBodilessEntity();
     }

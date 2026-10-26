@@ -11,14 +11,22 @@ export async function listProviders(): Promise<ChatProviderInfo[]> {
   return data
 }
 
-export async function listDocuments(): Promise<DocumentSummary[]> {
-  const { data } = await http.get<DocumentSummary[]>('/api/knowledge/documents')
+export async function listDocuments(appId: string): Promise<DocumentSummary[]> {
+  const { data } = await http.get<DocumentSummary[]>('/api/knowledge/documents', {
+    params: { appId },
+  })
   return data
 }
 
-export async function uploadDocument(file: File): Promise<DocumentSummary> {
+export async function uploadDocument(
+  file: File,
+  appId: string,
+  category = 0,
+): Promise<DocumentSummary> {
   const form = new FormData()
   form.append('file', file)
+  form.append('appId', appId)
+  form.append('category', String(category))
   const { data } = await http.post<DocumentSummary>('/api/knowledge/documents', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })

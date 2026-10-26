@@ -4,8 +4,16 @@ server:
 spring:
   application:
     name: ai-service-llm
+  config:
+    import:
+      - optional:file:./deploy/env/current.env[.properties]
+      - optional:file:../../deploy/env/current.env[.properties]
+      - optional:classpath:config/satoken-common.yml
+      - optional:classpath:config/nacos-client.yml
+      - optional:nacos:application-common.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:ai-service-llm.yaml?group=DEFAULT_GROUP&refreshEnabled=true
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:${spring.profiles.active:dev}}
   # ai-common 传递了 MyBatis-Plus/JDBC，但本服务只做编排，不需要 DataSource
   autoconfigure:
     exclude:
@@ -20,8 +28,8 @@ spring:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       database: 0
-
 app:
   expert:
     id: home-health-advisor
@@ -43,15 +51,15 @@ app:
     default-provider: ${AI_DEFAULT_PROVIDER:deepseek}
     providers:
       deepseek:
-        base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
-        api-key: "${DEEPSEEK_API_KEY:${OPENAI_API_KEY:}}"
-        model: ${DEEPSEEK_MODEL:deepseek-chat}
+        base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+        api-key: ${OPENAI_API_KEY:}
+        model: ${OPENAI_CHAT_MODEL:deepseek-chat}
         temperature: 0.7
         max-tokens: 2048
       deepseek-flash:
-        base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
-        api-key: "${DEEPSEEK_API_KEY:${OPENAI_API_KEY:}}"
-        model: ${DEEPSEEK_FLASH_MODEL:deepseek-flash}
+        base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+        api-key: ${OPENAI_API_KEY:}
+        model: ${OPENAI_CHAT_MODEL_FLASH:deepseek-flash}
         temperature: 0.7
         max-tokens: 2048
       # 其他 OpenAI 兼容供应商示例，启用时填好 key 并删掉注释：
@@ -71,18 +79,6 @@ app:
     knowledge-base-url: ${KNOWLEDGE_SERVICE_URL:http://127.0.0.1:9202}
     conversation-base-url: ${CONVERSATION_SERVICE_URL:http://127.0.0.1:9203}
 
-sa-token:
-  token-name: Authorization
-  token-prefix: Bearer
-  is-read-header: true
-  is-read-cookie: false
-  timeout: 86400
-  active-timeout: -1
-  is-concurrent: true
-  is-share: true
-  token-style: uuid
-  is-log: false
-
 management:
   endpoints:
     web:
@@ -93,3 +89,4 @@ logging:
   level:
     org.springframework.ai: INFO
     com.example.ai.llm: INFO
+

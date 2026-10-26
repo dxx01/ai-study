@@ -3,7 +3,7 @@
 ## 调用链
 
 ```
-frontend → ai-gateway (8080)
+frontend → ai-gateway (9100)
   → ai-auth                 sys_user（MySQL）
   → ai-service-llm          编排 → conversation + knowledge + 模型
   → ai-service-knowledge    RAG / 文件

@@ -18,4 +18,4 @@ Node 22+（建议 24 LTS，见 `.nvmrc`）。若默认 registry 不可达，可�
 npm install --registry=https://registry.npmmirror.com
 ```
 
-开发时代理到网关 `http://127.0.0.1:8080`（见 `vite.config.ts`）。
+开发时代理到网关 `http://127.0.0.1:9100`（见 `vite.config.ts`）。

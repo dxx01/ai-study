@@ -9,11 +9,325 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
+html,
+body,
+#app {
+  height: 100%;
 }
 
-#app {
-  min-height: 100vh;
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+/* 列表/管理页统一壳（与 .cursor/rules/frontend-standards.mdc 一致） */
+.app-page {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* 后台列表页：横向铺满主区，纵向与主区同高，留白留在卡片内（白底） */
+.layout-shell__main > .app-page--list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.app-page-card--list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-page-card--list > .el-card__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 列表页卡片内容区：表格区可 flex 撑满，避免主区灰底留白 */
+.app-page-list-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-page-list-body > .app-data-table--fill {
+  flex: 1;
+  min-height: 0;
+}
+
+.app-page--list .app-data-table--fill {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-page-list-body__footer {
+  flex: 1;
+  min-height: 120px;
+  margin-top: 16px;
+  max-width: none;
+}
+
+.app-page-card {
+  border-radius: 12px;
+}
+
+.app-page-card > .el-card__body {
+  padding: 16px 20px 20px;
+}
+
+/* 业务表格容器（AppDataTable） */
+.app-data-table {
+  width: 100%;
+  background: #fff;
+}
+
+.app-data-table--fill .app-data-table__body {
+  flex: 1;
+  min-height: 0;
+}
+
+.app-data-table__body {
+  min-height: 0;
+}
+
+.app-data-table__inner {
+  width: 100%;
+  --el-table-header-bg-color: #f8fafc;
+  --el-table-header-text-color: #374151;
+  --el-table-row-hover-bg-color: #f0fdfa;
+  --el-table-border-color: #e5e7eb;
+}
+
+.app-data-table__inner .el-table__header th.el-table__cell {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.app-data-table__inner .el-table__body td.el-table__cell {
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.app-data-table__inner .el-table__cell {
+  padding: 8px 0;
+}
+
+.app-data-table--fill .el-table__empty-block {
+  min-height: 240px;
+}
+
+.app-data-table--fill.app-data-table--tree .el-table__empty-block {
+  min-height: 280px;
+}
+
+.app-data-table--tree .el-table__row--level-1 .el-table__cell:first-child {
+  font-weight: 500;
+}
+
+.app-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.app-page-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.app-page-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 列表页：查询区 / 分页与表格间距（frontend-standards §3、§4.2.1） */
+.app-list-query {
+  margin-bottom: 16px;
+}
+
+.app-list-pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.app-page-hint {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  max-width: 720px;
+}
+
+.app-page-hint__title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.app-page-hint ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.app-page-hint code {
+  font-size: 12px;
+  color: #0f766e;
+}
+
+/* 宽表：在页面根节点追加 class，如 <AppPageCard page-class="app-page--wide"> */
+.app-page.app-page--wide {
+  max-width: 1400px;
+}
+
+.app-page.app-page--list.app-page--wide {
+  margin: 0 auto;
+}
+
+/* AppFormDialog：长表单仅 body 区滚动，footer 固定 */
+.app-form-dialog .el-dialog__body {
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  padding-top: 8px;
+}
+
+/* MainLayout：视口固定壳 + 主内容区滚动（见 frontend-standards §3.1） */
+.layout-shell {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.layout-shell__column {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.layout-shell__aside {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.layout-shell__aside .layout-shell__menu {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-right: none;
+}
+
+.layout-shell__header {
+  flex-shrink: 0;
+}
+
+.layout-shell__main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #f3f4f6;
+}
+
+/* 对话页：占满主区，消息区二级滚动 */
+.layout-shell__main > .app-page--chat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.app-page-card--chat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-page-card--chat > .el-card__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 登录 / 注册（guest 路由，允许页内滚动） */
+.auth-page {
+  min-height: 100%;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+}
+
+.auth-page--teal {
+  background: radial-gradient(circle at top, #ccfbf1, #f3f4f6 55%);
+}
+
+.auth-page--blue {
+  background: radial-gradient(circle at top, #dbeafe, #f3f4f6 55%);
+}
+
+.auth-card {
+  width: min(420px, 92vw);
+  border-radius: 12px;
+}
+
+.auth-title {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.auth-subtitle {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.auth-footer {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.auth-form-full {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* 表格内标签、弹窗多选行 */
+.app-tag-gap {
+  margin: 0 6px 6px 0;
+}
+
+.app-dialog-check-row {
+  display: flex;
+  margin-bottom: 8px;
 }

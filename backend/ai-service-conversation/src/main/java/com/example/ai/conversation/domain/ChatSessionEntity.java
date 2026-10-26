@@ -23,6 +23,14 @@ public class ChatSessionEntity {
     @TableField(value = "owner_user_id", fill = FieldFill.INSERT)
     private Long ownerUserId;
 
+    private String title;
+
+    @TableField("message_count")
+    private Integer messageCount;
+
+    @TableField("last_message_at")
+    private LocalDateTime lastMessageAt;
+
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
@@ -43,6 +51,30 @@ public class ChatSessionEntity {
 
     public void setOwnerUserId(Long ownerUserId) {
         this.ownerUserId = ownerUserId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Integer getMessageCount() {
+        return messageCount;
+    }
+
+    public void setMessageCount(Integer messageCount) {
+        this.messageCount = messageCount;
+    }
+
+    public LocalDateTime getLastMessageAt() {
+        return lastMessageAt;
+    }
+
+    public void setLastMessageAt(LocalDateTime lastMessageAt) {
+        this.lastMessageAt = lastMessageAt;
     }
 
     public LocalDateTime getCreatedAt() {

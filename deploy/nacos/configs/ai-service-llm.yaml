@@ -1,0 +1,22 @@
+# 密钥勿放 Nacos：dev 用 backend/ai-service-llm/.env.dev.properties（OPENAI_API_KEY 等）
+app:
+  ai:
+    default-provider: deepseek
+    providers:
+      deepseek:
+        base-url: https://api.deepseek.com
+        model: deepseek-chat
+        temperature: 0.7
+        max-tokens: 2048
+      deepseek-flash:
+        base-url: https://api.deepseek.com
+        model: deepseek-flash
+        temperature: 0.7
+        max-tokens: 2048
+  web-search:
+    enabled: false
+    max-results: 5
+  rate-limit:
+    enabled: true
+    chat-per-minute: 20
+    chat-per-day: 200

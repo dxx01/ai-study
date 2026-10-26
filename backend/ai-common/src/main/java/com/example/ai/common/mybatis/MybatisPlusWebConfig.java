@@ -1,5 +1,8 @@
 package com.example.ai.common.mybatis;
 
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,6 +14,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @since 0.4.0
  */
 @Configuration
+@ConditionalOnClass(MetaObjectHandler.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class MybatisPlusWebConfig implements WebMvcConfigurer {
 
     @Override

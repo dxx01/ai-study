@@ -1,3 +1,4 @@
+# profile=dev（local.env）时加载本机密钥，勿提交 .env.dev.properties
 spring:
   config:
     import:

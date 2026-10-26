@@ -1,33 +1,25 @@
 server:
-  port: 8080
+  port: 9100
 
 spring:
   application:
     name: ai-gateway
+  config:
+    import:
+      - optional:file:./deploy/env/current.env[.properties]
+      - optional:file:../../deploy/env/current.env[.properties]
+      - optional:classpath:config/satoken-common.yml
+      - optional:classpath:config/nacos-client.yml
+      - optional:nacos:application-common.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:ai-gateway.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:${spring.profiles.active:dev}}
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       database: 0
-  cloud:
-    gateway:
-      routes:
-        - id: ai-auth
-          uri: http://127.0.0.1:9101
-          predicates:
-            - Path=/auth/**
-        - id: ai-llm
-          uri: http://127.0.0.1:9201
-          predicates:
-            - Path=/api/chat/**
-        - id: ai-knowledge
-          uri: http://127.0.0.1:9202
-          predicates:
-            - Path=/api/knowledge/**
-        - id: ai-conversation
-          uri: http://127.0.0.1:9203
-          predicates:
-            - Path=/api/conversation/**
 
 management:
   endpoints:
@@ -35,17 +27,15 @@ management:
       exposure:
         include: health,info
 
-sa-token:
-  token-name: Authorization
-  token-prefix: Bearer
-  is-read-header: true
-  is-read-cookie: false
-  timeout: 86400
-  active-timeout: -1
-  is-concurrent: true
-  is-share: true
-  token-style: uuid
-  is-log: false
+# 路由在 Nacos ai-gateway.yaml（lb://）；本地须能连 Nacos
+app:
+  gateway:
+    auth:
+      whitelist:
+        - /auth/login
+        - /auth/register
+        - /actuator/**
+      blacklist: []
 
 logging:
   level:

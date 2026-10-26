@@ -1,6 +1,5 @@
 package com.example.ai.conversation.web;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import com.example.ai.common.api.dto.AppendMessageRequest;
@@ -26,7 +25,6 @@ import java.util.List;
  * @author 邓鑫鑫
  * @since 0.3.0
  */
-@SaCheckLogin
 @RestController
 @RequestMapping("/api/conversation")
 public class ConversationController {

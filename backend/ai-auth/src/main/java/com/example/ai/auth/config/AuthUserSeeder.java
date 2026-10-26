@@ -28,7 +28,10 @@ public class AuthUserSeeder implements ApplicationRunner {
             AiPermissions.CHAT,
             AiPermissions.KNOWLEDGE_READ,
             AiPermissions.KNOWLEDGE_WRITE,
-            AiPermissions.KNOWLEDGE_ADMIN
+            AiPermissions.KNOWLEDGE_ADMIN,
+            AiPermissions.SYS_USER_MANAGE,
+            AiPermissions.SYS_ROLE_MANAGE,
+            AiPermissions.SYS_MENU_MANAGE
     );
 
     private static final List<String> USER_ROLES = List.of("user");

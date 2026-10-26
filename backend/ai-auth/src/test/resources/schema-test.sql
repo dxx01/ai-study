@@ -4,5 +4,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
     password_hash   VARCHAR(128) NOT NULL,
     roles           VARCHAR(512) NOT NULL,
     permissions     VARCHAR(512) NOT NULL,
-    created_at      TIMESTAMP NOT NULL
+    status          TINYINT NOT NULL DEFAULT 1,
+    last_login_at   TIMESTAMP NULL,
+    created_at      TIMESTAMP NOT NULL,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

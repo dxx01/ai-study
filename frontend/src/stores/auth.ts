@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import * as authApi from '@/api/auth'
-import type { LoginResponse } from '@/types/api'
+import type { LoginResponse, MenuItem } from '@/types/api'
 
 const TOKEN_KEY = 'ai_study_token'
 const USER_KEY = 'ai_study_user'
@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   const username = ref<string | null>(null)
   const permissions = ref<string[]>([])
   const roles = ref<string[]>([])
+  const menus = ref<MenuItem[]>([])
 
   const isLoggedIn = computed(() => !!token.value)
 
@@ -19,6 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = data.username
     permissions.value = data.permissions ?? []
     roles.value = data.roles ?? []
+    menus.value = data.menus ?? []
     localStorage.setItem(TOKEN_KEY, data.token)
     localStorage.setItem(
       USER_KEY,
@@ -26,6 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
         username: data.username,
         permissions: data.permissions,
         roles: data.roles,
+        menus: data.menus,
       }),
     )
   }
@@ -38,10 +41,12 @@ export const useAuthStore = defineStore('auth', () => {
           username: string
           permissions: string[]
           roles: string[]
+          menus?: MenuItem[]
         }
         username.value = parsed.username
         permissions.value = parsed.permissions ?? []
         roles.value = parsed.roles ?? []
+        menus.value = parsed.menus ?? []
       } catch {
         /* ignore */
       }
@@ -53,6 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = null
     permissions.value = []
     roles.value = []
+    menus.value = []
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
   }
@@ -89,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
     username.value = me.username
     permissions.value = me.permissions
     roles.value = me.roles
+    menus.value = me.menus ?? []
   }
 
   restoreFromStorage()
@@ -98,6 +105,7 @@ export const useAuthStore = defineStore('auth', () => {
     username,
     permissions,
     roles,
+    menus,
     isLoggedIn,
     hasPermission,
     login,

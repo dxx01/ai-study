@@ -68,6 +68,13 @@ public class UserAccountService {
     }
 
     /**
+     * @param userId 用户主键
+     */
+    public void recordLogin(long userId) {
+        userStore.recordLogin(userId);
+    }
+
+    /**
      * @param username 登录名
      * @param rawPassword 密码
      * @return 新注册用户

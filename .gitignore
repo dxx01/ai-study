@@ -26,7 +26,9 @@ Thumbs.db
 .env.*
 **/.env.*
 **/.env.*.properties
-deploy/env/local-mysql.env
+deploy/env/local.env
+deploy/env/server.env
+deploy/env/current.env
 deploy/env/*.local.env
 *.pem
 *.key

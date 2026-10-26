@@ -17,13 +17,16 @@ public final class UserRecord {
     private final String passwordHash;
     private final List<String> roles;
     private final List<String> permissions;
+    private final Integer status;
 
-    public UserRecord(String id, String username, String passwordHash, List<String> roles, List<String> permissions) {
+    public UserRecord(String id, String username, String passwordHash, List<String> roles, List<String> permissions,
+                      Integer status) {
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
         this.roles = Collections.unmodifiableList(new ArrayList<>(roles));
         this.permissions = Collections.unmodifiableList(new ArrayList<>(permissions));
+        this.status = status;
     }
 
     public String id() {
@@ -44,5 +47,9 @@ public final class UserRecord {
 
     public List<String> permissions() {
         return permissions;
+    }
+
+    public Integer status() {
+        return status;
     }
 }

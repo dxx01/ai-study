@@ -1,0 +1,28 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: ai-auth
+          uri: lb://ai-auth
+          predicates:
+            - Path=/auth/**
+        - id: ai-auth-admin
+          uri: lb://ai-auth
+          predicates:
+            - Path=/api/admin/**
+        - id: ai-auth-apps
+          uri: lb://ai-auth
+          predicates:
+            - Path=/api/apps/**
+        - id: ai-llm
+          uri: lb://ai-service-llm
+          predicates:
+            - Path=/api/chat/**
+        - id: ai-knowledge
+          uri: lb://ai-service-knowledge
+          predicates:
+            - Path=/api/knowledge/**
+        - id: ai-conversation
+          uri: lb://ai-service-conversation
+          predicates:
+            - Path=/api/conversation/**

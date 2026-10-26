@@ -27,6 +27,6 @@ public class KnowledgeStartupLoader implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         knowledgeIngestionService.reloadFromDisk();
-        log.info("知识库启动扫描完成，已索引文档数: {}", knowledgeIngestionService.listDocuments().size());
+        log.info("知识库启动扫描完成，已索引文档数: {}", knowledgeIngestionService.countAllDocuments());
     }
 }

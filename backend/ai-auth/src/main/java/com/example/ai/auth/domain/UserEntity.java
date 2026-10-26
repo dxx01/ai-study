@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 
+import com.example.ai.common.dict.EnableStatus;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,16 @@ public class UserEntity {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> permissions = new ArrayList<>();
 
+    private Integer status = 1;
+
+    @TableField("last_login_at")
+    private LocalDateTime lastLoginAt;
+
     @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
+
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -77,6 +87,22 @@ public class UserEntity {
         this.permissions = permissions;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -85,16 +111,34 @@ public class UserEntity {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     /**
-     * @return 领域只读视图
+     * @return 领域只读视图（使用 JSON 兜底）
      */
     public UserRecord toRecord() {
+        return toRecord(roles, permissions);
+    }
+
+    /**
+     * @param resolvedRoles 角色编码
+     * @param resolvedPermissions 权限码
+     * @return 领域只读视图
+     */
+    public UserRecord toRecord(List<String> resolvedRoles, List<String> resolvedPermissions) {
         return new UserRecord(
                 String.valueOf(id),
                 username,
                 passwordHash,
-                roles,
-                permissions
+                resolvedRoles,
+                resolvedPermissions,
+                status == null ? EnableStatus.ENABLED : status
         );
     }
 }

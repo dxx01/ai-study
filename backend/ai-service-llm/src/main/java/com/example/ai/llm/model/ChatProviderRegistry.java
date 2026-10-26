@@ -32,6 +32,7 @@ public class ChatProviderRegistry {
     private static final Logger log = LoggerFactory.getLogger(ChatProviderRegistry.class);
 
     private final Map<String, ChatClient> clients = new LinkedHashMap<>();
+    private final Map<String, String> models = new LinkedHashMap<>();
     private final List<ChatProviderInfo> providers = new ArrayList<>();
     private final String defaultProvider;
 
@@ -66,6 +67,7 @@ public class ChatProviderRegistry {
             ChatClient client = ChatClient.builder(model).defaultSystem(systemPrompt).build();
 
             clients.put(id, client);
+            models.put(id, provider.getModel());
             providers.add(new ChatProviderInfo(id, provider.getModel(), id.equals(defaultProvider)));
         }
 
@@ -89,6 +91,18 @@ public class ChatProviderRegistry {
 
     public boolean contains(String id) {
         return clients.containsKey(id);
+    }
+
+    /**
+     * @param id 提供方 ID
+     * @return 模型名
+     */
+    public String model(String id) {
+        String model = models.get(id);
+        if (model == null) {
+            throw new IllegalArgumentException("未知的模型提供方: " + id);
+        }
+        return model;
     }
 
     public String defaultProvider() {

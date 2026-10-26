@@ -5,7 +5,53 @@ alwaysApply: true
 
 # Agent 通用约定（ai-study）
 
+> `AGENTS.md` 是 DSH / Cursor 共用入口；本文件只做 Cursor 的触发适配，冲突时以 `AGENTS.md` 为准。
+
+## 方案 / 建议 / 讨论模式（关键词触发）
+
+当用户消息意图为**要方案/要建议/要讨论设计**（不限于句首，但应是本轮主诉求），且包含下列**任一触发词**时：
+
+1. **遵守** [design-advisory.mdc](design-advisory.mdc) 的流程（默认不写代码）。  
+2. **对照** [docs/standards/design-review.md](docs/standards/design-review.md) 做通用审查。  
+3. **识别为本仓库 ai-study 时**，再读 [docs/standards/design-review-ai-study.md](docs/standards/design-review-ai-study.md)。
+
+| 触发词（示例） | 说明 |
+|----------------|------|
+| **讨论**、**建议**、**方案**、**设计** | 常规方案沟通 |
+| **你有什么建议**、**给点建议**、**有什么建议**、**你怎么看** | 口语化，**同样触发** |
+| **选型**、**评估**、**是否合理**、**能不能扩展** | 架构与演进 |
+
+**本模式下默认**：只分析与给建议，**不写代码、不改配置**，除非用户明确说「实现 / 开发 / 按方案改代码」。
+
+**不触发**（按普通 Q&A / 实现处理）：纯事实问句且无「建议/讨论/方案」语义，例如「Redis 端口是多少」「帮我把这行报错修掉」。  
+若语义模糊（如单独「怎么办」），可简短回答并问一句是否要进入方案讨论。
+
+用户若说「简单问一下 / 只要一句话」，可压缩审查输出，不必八段式。
+
+**说明**：`design-advisory.mdc` 的 `alwaysApply: false` 表示不每次自动注入全文；**本段 alwaysApply 规则负责在命中触发词时要求 Agent 按 design-advisory + design-review 执行**（必要时用户可 `@design-advisory` 强制加载）。
+
+## 代码 Review（`RV` 前缀）
+
+**仅当**用户消息去掉首尾空白后，**以下列之一开头**时进入代码 review（与方案模式互斥）：
+
+- `RV`、`rv`
+- `RV:代码`、`rv:代码`
+
+**不触发代码 review**（走方案模式或普通对话）：`RV:设计`、`RV:需求`；讨论正文中间的 `RV:…`；无前缀的「code review」。
+
+进入后：
+
+1. **必读** [docs/standards/code-review.md](docs/standards/code-review.md)（事实来源；DSH 无个人 Skill 时仍执行）。
+2. 按 §2 收集证据（diff、构建/测试、关键路径运行证据），按 §3–§5 审查；输出格式 **§6**；无关键证据不得「通过」。
+3. 可选 Skill **review-playbook**：检查项与结论以 `code-review.md` 为准，格式冲突以 §6 为准。
+4. **默认不改代码**；用户明确「RV 并修 / 按 RV 改」时仅修 P0/P1。
+
+---
+
 - 与用户沟通默认使用 **简体中文**。
 - 引用仓库内已有代码时使用 Cursor 代码引用格式：`startLine:endLine:filepath`。
-- 只改与任务相关的文件；未要求时不扩大范围、不主动 commit/push。
+- 只改与任务相关的文件；默认不扩大范围、**不 commit、不 push**。
+- commit 需用户明确要求；push 需用户再次明确要求。提交前用 `git diff` 自查，只包含本次任务文件。
+- 优先 feature 分支，不直接推 main；禁止 force push、改写已推送历史。
+- 不提交 `.env*`、密钥、`target/`、`node_modules/` 等本地/构建产物。
 - 编写或修改 **Java/Kotlin** 时遵守 `@java-enterprise-coding-standards`；编写或修改 **前端** 时遵守 `@frontend-standards`。

@@ -22,4 +22,13 @@ public final class AiPermissions {
 
     /** 重建索引 */
     public static final String KNOWLEDGE_ADMIN = "ai:knowledge:admin";
+
+    /** 用户管理 */
+    public static final String SYS_USER_MANAGE = "sys:user:manage";
+
+    /** 角色管理 */
+    public static final String SYS_ROLE_MANAGE = "sys:role:manage";
+
+    /** 菜单管理 */
+    public static final String SYS_MENU_MANAGE = "sys:menu:manage";
 }

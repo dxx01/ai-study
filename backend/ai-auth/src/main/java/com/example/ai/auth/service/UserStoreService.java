@@ -2,12 +2,19 @@ package com.example.ai.auth.service;
 
 import com.example.ai.auth.domain.UserEntity;
 import com.example.ai.auth.domain.UserRecord;
+import com.example.ai.auth.mapper.SysRbacMapper;
 import com.example.ai.auth.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.ai.common.mybatis.DbTimeZones;
 import com.example.ai.common.security.AiPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +27,8 @@ import java.util.Optional;
 @Service
 public class UserStoreService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserStoreService.class);
+
     private static final List<String> DEFAULT_USER_ROLES = List.of("user");
     private static final List<String> DEFAULT_USER_PERMISSIONS = List.of(
             AiPermissions.CHAT,
@@ -28,16 +37,18 @@ public class UserStoreService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SysRbacMapper rbacMapper;
 
-    public UserStoreService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserStoreService(UserMapper userMapper, PasswordEncoder passwordEncoder, SysRbacMapper rbacMapper) {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.rbacMapper = rbacMapper;
     }
 
     @Transactional(readOnly = true)
     public Optional<UserRecord> findByUsername(String username) {
         UserEntity entity = userMapper.selectByUsername(username);
-        return Optional.ofNullable(entity).map(UserEntity::toRecord);
+        return Optional.ofNullable(entity).map(this::toRecord);
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +56,7 @@ public class UserStoreService {
         try {
             long id = Long.parseLong(loginId);
             UserEntity entity = userMapper.selectById(id);
-            return Optional.ofNullable(entity).map(UserEntity::toRecord);
+            return Optional.ofNullable(entity).map(this::toRecord);
         } catch (NumberFormatException ex) {
             return Optional.empty();
         }
@@ -56,6 +67,31 @@ public class UserStoreService {
         return findByUsername(username)
                 .map(user -> passwordEncoder.matches(rawPassword, user.passwordHash()))
                 .orElse(false);
+    }
+
+    @Transactional
+    public void recordLogin(long userId) {
+        LocalDateTime now = LocalDateTime.now(DbTimeZones.SHANGHAI);
+        userMapper.update(null, Wrappers.<UserEntity>lambdaUpdate()
+                .eq(UserEntity::getId, userId)
+                .set(UserEntity::getLastLoginAt, now)
+                .set(UserEntity::getUpdatedAt, now));
+    }
+
+    private UserRecord toRecord(UserEntity entity) {
+        List<String> roles = entity.getRoles();
+        List<String> permissions = entity.getPermissions();
+        try {
+            List<String> rbacRoles = rbacMapper.selectRoleCodes(entity.getId());
+            List<String> rbacPermissions = rbacMapper.selectPermissionCodes(entity.getId());
+            if (!rbacRoles.isEmpty() || !rbacPermissions.isEmpty()) {
+                roles = rbacRoles;
+                permissions = rbacPermissions;
+            }
+        } catch (DataAccessException ex) {
+            log.debug("RBAC 表不可用，回退 sys_user JSON 权限: userId={}", entity.getId(), ex);
+        }
+        return entity.toRecord(roles, permissions);
     }
 
     @Transactional
@@ -75,7 +111,12 @@ public class UserStoreService {
         entity.setRoles(DEFAULT_USER_ROLES);
         entity.setPermissions(DEFAULT_USER_PERMISSIONS);
         userMapper.insert(entity);
-        return entity.toRecord();
+        try {
+            rbacMapper.assignDefaultRole(entity.getId());
+        } catch (DataAccessException ex) {
+            log.debug("RBAC 表不可用，跳过默认角色绑定: userId={}", entity.getId(), ex);
+        }
+        return toRecord(entity);
     }
 
     @Transactional

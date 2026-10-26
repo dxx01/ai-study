@@ -9,6 +9,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# 保证通过管道传给 mysql 的是 UTF-8 字节，避免中文注释被按 GBK 解释
+$OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 
 if ([string]::IsNullOrWhiteSpace($Password)) {
     throw "未读取到 MYSQL_PASSWORD。请先运行 .\scripts\load-local-mysql-env.ps1，或用 -Password 显式传入。"
@@ -20,12 +22,18 @@ if (-not (Test-Path $mysql)) {
 }
 
 function Invoke-Sql([string]$sql) {
-    $sql | & $mysql --host=$DbHost --port=$Port "-u$User" "-p$Password"
+    $sql | & $mysql --default-character-set=utf8mb4 --host=$DbHost --port=$Port "-u$User" "-p$Password"
+    if ($LASTEXITCODE -ne 0) {
+        throw "SQL 执行失败（exit=$LASTEXITCODE）：$sql"
+    }
 }
 
 function Invoke-SqlFile([string]$path) {
     Write-Host ">> $path"
-    Get-Content $path -Encoding UTF8 -Raw | & $mysql --host=$DbHost --port=$Port "-u$User" "-p$Password"
+    Get-Content $path -Encoding UTF8 -Raw | & $mysql --default-character-set=utf8mb4 --host=$DbHost --port=$Port "-u$User" "-p$Password"
+    if ($LASTEXITCODE -ne 0) {
+        throw "SQL 文件执行失败（exit=$LASTEXITCODE）：$path"
+    }
 }
 
 if ($Recreate) {

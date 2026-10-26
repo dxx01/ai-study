@@ -1,6 +1,5 @@
 package com.example.ai.llm.web;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.example.ai.common.api.ChatMode;
 import com.example.ai.common.api.dto.ChatRequest;
@@ -26,7 +25,6 @@ import java.util.List;
  * @author 邓鑫鑫
  * @since 0.3.0
  */
-@SaCheckLogin
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
@@ -51,8 +49,9 @@ public class ChatController {
     public ChatResponse chatQuick(@RequestParam(defaultValue = "你好") String message,
                                   @RequestParam(required = false) String sessionId,
                                   @RequestParam(required = false, defaultValue = "AUTO") ChatMode mode,
-                                  @RequestParam(required = false) String provider) {
-        return chatOrchestrationService.chat(new ChatRequest(message, sessionId, mode, provider));
+                                  @RequestParam(required = false) String provider,
+                                  @RequestParam(required = false, defaultValue = "health") String appId) {
+        return chatOrchestrationService.chat(new ChatRequest(message, sessionId, mode, provider, appId));
     }
 
     /**

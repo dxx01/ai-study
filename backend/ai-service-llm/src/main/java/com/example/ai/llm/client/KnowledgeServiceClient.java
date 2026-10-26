@@ -34,12 +34,12 @@ public class KnowledgeServiceClient {
      * @param authorization 请求头 Authorization 完整值
      * @return 命中片段
      */
-    public List<KnowledgeSearchHit> search(String query, String authorization) {
+    public List<KnowledgeSearchHit> search(String query, String appId, String authorization) {
         return restClient.post()
                 .uri("/api/knowledge/search")
                 .header("Authorization", authorization)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new KnowledgeSearchRequest(query))
+                .body(new KnowledgeSearchRequest(query, appId))
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<KnowledgeSearchHit>>() {
                 });

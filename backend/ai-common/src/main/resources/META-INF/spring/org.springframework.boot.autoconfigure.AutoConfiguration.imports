@@ -1,2 +1,4 @@
+com.example.ai.common.mybatis.MybatisPlusAuditAutoConfiguration
 com.example.ai.common.mybatis.MybatisPlusWebConfig
-com.example.ai.common.mybatis.AuditMetaObjectHandler
+com.example.ai.common.security.SaTokenAutoConfiguration
+com.example.ai.common.security.SaTokenMvcAutoConfiguration

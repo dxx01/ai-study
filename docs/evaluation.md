@@ -35,7 +35,7 @@ python scripts/eval_chat.py --provider deepseek-flash
 
 | 参数 | 说明 |
 |------|------|
-| `--base-url` | 默认 `http://127.0.0.1:8080`（走网关） |
+| `--base-url` | 默认 `http://127.0.0.1:9100`（走网关） |
 | `--mode` | `LOCAL`（默认，隔离 RAG）/ `WEB` / `AUTO` |
 | `--provider` | 指定模型提供方；不传用后端默认 |
 | `--dataset` | 默认 `eval/questions.jsonl` |

@@ -2,8 +2,6 @@ package com.example.ai.common.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 
 /**
@@ -12,7 +10,6 @@ import java.time.LocalDateTime;
  * @author 邓鑫鑫
  * @since 0.4.0
  */
-@Component
 public class AuditMetaObjectHandler implements MetaObjectHandler {
 
     private static final String CREATED_AT = "createdAt";

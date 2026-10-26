@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { listProviders, postChat } from '@/api/expert'
 import type { ChatMode, ChatProviderInfo, ChatResponse } from '@/types/api'
+import AppPageCard from '@/components/app/AppPageCard.vue'
+import { useApiFeedback } from '@/composables/useApiFeedback'
+import { useRoutePageTitle } from '@/composables/useRoutePageTitle'
 import { renderMarkdown } from '@/utils/markdown'
+
+const route = useRoute()
+const pageTitle = useRoutePageTitle()
+const { showError } = useApiFeedback()
+const appId = computed(() => String(route.params.appId ?? 'health'))
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -59,11 +67,12 @@ async function send() {
       sessionId: sessionId.value,
       mode: mode.value,
       provider: provider.value,
+      appId: appId.value,
     })
     sessionId.value = resp.sessionId
     messages.value.push({ role: 'assistant', content: resp.answer, meta: resp })
   } catch (e) {
-    ElMessage.error(e instanceof Error ? e.message : '发送失败')
+    showError(e, '发送失败')
   } finally {
     loading.value = false
     await scrollBottom()
@@ -72,124 +81,86 @@ async function send() {
 </script>
 
 <template>
-  <div class="chat-page">
-    <el-card shadow="never" class="chat-card">
-      <template #header>
-        <div class="chat-header">
-          <span>智能对话</span>
-          <div class="chat-controls">
-            <el-select
-              v-if="providers.length"
-              v-model="provider"
-              size="small"
-              class="model-select"
-              placeholder="模型"
-            >
-              <el-option
-                v-for="item in providers"
-                :key="item.id"
-                :label="item.model"
-                :value="item.id"
-              />
-            </el-select>
-            <el-radio-group v-model="mode" size="small">
-              <el-radio-button label="AUTO">自动</el-radio-button>
-              <el-radio-button label="LOCAL">仅本地</el-radio-button>
-              <el-radio-button label="WEB">联网</el-radio-button>
-            </el-radio-group>
-          </div>
-        </div>
-      </template>
+  <AppPageCard
+    :list-layout="false"
+    page-class="app-page--chat"
+    card-class="app-page-card--chat"
+    :title="pageTitle"
+  >
+    <template #actions>
+      <el-select v-if="providers.length" v-model="provider" class="model-select" placeholder="模型">
+        <el-option v-for="item in providers" :key="item.id" :label="item.model" :value="item.id" />
+      </el-select>
+      <el-radio-group v-model="mode">
+        <el-radio-button value="AUTO">自动</el-radio-button>
+        <el-radio-button value="LOCAL">仅本地</el-radio-button>
+        <el-radio-button value="WEB">联网</el-radio-button>
+      </el-radio-group>
+    </template>
 
-      <div ref="listRef" class="message-list">
-        <div
-          v-for="(msg, idx) in messages"
-          :key="idx"
-          class="message-row"
-          :class="msg.role"
-        >
-          <div class="bubble">
-            <div
-              v-if="msg.role === 'assistant'"
-              class="content markdown-body"
-              v-html="renderMarkdown(msg.content)"
-            ></div>
-            <div v-else class="content">{{ msg.content }}</div>
-            <template v-if="msg.meta">
-              <el-divider />
-              <p v-if="msg.meta.disclaimer" class="disclaimer">{{ msg.meta.disclaimer }}</p>
-              <div v-if="msg.meta.sources?.length" class="sources">
-                <div class="sources-title">参考依据</div>
-                <el-collapse>
-                  <el-collapse-item
-                    v-for="(s, i) in msg.meta.sources"
-                    :key="i"
-                    :title="s.title"
-                  >
-                    <p class="source-type">{{ s.type === 'WEB_SEARCH' ? '联网检索' : '本地知识库' }}</p>
-                    <p>{{ s.excerpt }}</p>
-                    <p v-if="s.documentId && s.type === 'WEB_SEARCH'" class="source-link">
-                      {{ s.documentId }}
-                    </p>
-                  </el-collapse-item>
-                </el-collapse>
-              </div>
-            </template>
-          </div>
+    <div ref="listRef" class="message-list">
+      <div
+        v-for="(msg, idx) in messages"
+        :key="idx"
+        class="message-row"
+        :class="msg.role"
+      >
+        <div class="bubble">
+          <div
+            v-if="msg.role === 'assistant'"
+            class="content markdown-body"
+            v-html="renderMarkdown(msg.content)"
+          ></div>
+          <div v-else class="content">{{ msg.content }}</div>
+          <template v-if="msg.meta">
+            <el-divider />
+            <p v-if="msg.meta.disclaimer" class="disclaimer">{{ msg.meta.disclaimer }}</p>
+            <div v-if="msg.meta.sources?.length" class="sources">
+              <div class="sources-title">参考依据</div>
+              <el-collapse>
+                <el-collapse-item
+                  v-for="(s, i) in msg.meta.sources"
+                  :key="i"
+                  :title="s.title"
+                >
+                  <p class="source-type">{{ s.type === 'WEB_SEARCH' ? '联网检索' : '本地知识库' }}</p>
+                  <p>{{ s.excerpt }}</p>
+                  <p v-if="s.documentId && s.type === 'WEB_SEARCH'" class="source-link">
+                    {{ s.documentId }}
+                  </p>
+                </el-collapse-item>
+              </el-collapse>
+            </div>
+          </template>
         </div>
-        <div v-if="loading" class="loading-hint">正在思考…</div>
       </div>
+      <div v-if="loading" class="loading-hint">正在思考…</div>
+    </div>
 
-      <div class="composer">
-        <el-input
-          v-model="input"
-          type="textarea"
-          :rows="3"
-          maxlength="4000"
-          show-word-limit
-          placeholder="请输入您的健康问题或科普疑问…"
-          @keydown.ctrl.enter="send"
-        />
-        <el-button type="primary" :loading="loading" @click="send">发送 (Ctrl+Enter)</el-button>
-      </div>
-    </el-card>
-  </div>
+    <div class="composer">
+      <el-input
+        v-model="input"
+        type="textarea"
+        :rows="3"
+        maxlength="4000"
+        show-word-limit
+        placeholder="请输入您的健康问题或科普疑问…"
+        @keydown.ctrl.enter="send"
+      />
+      <el-button type="primary" :loading="loading" @click="send">发送 (Ctrl+Enter)</el-button>
+    </div>
+  </AppPageCard>
 </template>
 
 <style scoped>
-.chat-page {
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-.chat-card {
-  border-radius: 12px;
-  min-height: calc(100vh - 120px);
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.chat-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .model-select {
-  width: 150px;
+  width: 180px;
 }
 
 .message-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  max-height: calc(100vh - 280px);
   padding: 8px 4px 16px;
 }
 
@@ -218,117 +189,6 @@ async function send() {
 .message-row.user .bubble {
   background: #ecfdf5;
   border-color: #a7f3d0;
-}
-
-.markdown-body {
-  white-space: normal;
-  line-height: 1.7;
-  word-break: break-word;
-}
-
-.markdown-body :deep(h1),
-.markdown-body :deep(h2),
-.markdown-body :deep(h3),
-.markdown-body :deep(h4) {
-  margin: 12px 0 8px;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.markdown-body :deep(h1:first-child),
-.markdown-body :deep(h2:first-child),
-.markdown-body :deep(h3:first-child),
-.markdown-body :deep(p:first-child) {
-  margin-top: 0;
-}
-
-.markdown-body :deep(h1) {
-  font-size: 19px;
-}
-
-.markdown-body :deep(h2) {
-  font-size: 17px;
-}
-
-.markdown-body :deep(h3) {
-  font-size: 15px;
-}
-
-.markdown-body :deep(p) {
-  margin: 0 0 8px;
-}
-
-.markdown-body :deep(ul),
-.markdown-body :deep(ol) {
-  margin: 0 0 8px;
-  padding-left: 22px;
-}
-
-.markdown-body :deep(li) {
-  margin: 2px 0;
-}
-
-.markdown-body :deep(strong) {
-  font-weight: 600;
-}
-
-.markdown-body :deep(a) {
-  color: #2563eb;
-  text-decoration: underline;
-}
-
-.markdown-body :deep(code) {
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: #f3f4f6;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.9em;
-}
-
-.markdown-body :deep(pre) {
-  margin: 8px 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #111827;
-  color: #f9fafb;
-  overflow-x: auto;
-}
-
-.markdown-body :deep(pre code) {
-  padding: 0;
-  background: transparent;
-  color: inherit;
-}
-
-.markdown-body :deep(blockquote) {
-  margin: 8px 0;
-  padding: 4px 10px;
-  border-left: 3px solid #d1d5db;
-  color: #4b5563;
-}
-
-.markdown-body :deep(table) {
-  width: 100%;
-  margin: 8px 0;
-  border-collapse: collapse;
-}
-
-.markdown-body :deep(th),
-.markdown-body :deep(td) {
-  padding: 6px 8px;
-  border: 1px solid #e5e7eb;
-  text-align: left;
-}
-
-.markdown-body :deep(th) {
-  background: #f9fafb;
-  font-weight: 600;
-}
-
-.markdown-body :deep(hr) {
-  margin: 12px 0;
-  border: none;
-  border-top: 1px solid #e5e7eb;
 }
 
 .disclaimer {
@@ -360,6 +220,7 @@ async function send() {
   flex-direction: column;
   gap: 10px;
   margin-top: 12px;
+  flex-shrink: 0;
 }
 
 .loading-hint {

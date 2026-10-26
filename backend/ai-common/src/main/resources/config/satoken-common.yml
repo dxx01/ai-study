@@ -1,0 +1,12 @@
+# 全平台 Sa-Token 统一配置（各服务 spring.config.import 引入；登录校验仅在网关）
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  is-read-header: true
+  is-read-cookie: false
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false

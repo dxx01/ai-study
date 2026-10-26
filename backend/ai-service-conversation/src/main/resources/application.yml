@@ -4,25 +4,32 @@ server:
 spring:
   application:
     name: ai-service-conversation
+  config:
+    import:
+      - optional:file:./deploy/env/current.env[.properties]
+      - optional:file:../../deploy/env/current.env[.properties]
+      - optional:classpath:config/satoken-common.yml
+      - optional:classpath:config/nacos-client.yml
+      - optional:nacos:application-common.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:ai-service-conversation.yaml?group=DEFAULT_GROUP&refreshEnabled=true
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:${spring.profiles.active:dev}}
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ai_platform}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       database: 0
 
-sa-token:
-  token-name: Authorization
-  token-prefix: Bearer
-  is-read-header: true
-  is-read-cookie: false
-  timeout: 86400
-  active-timeout: -1
-  is-concurrent: true
-  is-share: true
-  token-style: uuid
-  is-log: false
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.baomidou.mybatisplus.extension.handlers
 
 management:
   endpoints:

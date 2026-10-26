@@ -2,6 +2,7 @@ package com.example.ai.llm.service;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.example.ai.common.api.ChatMode;
+import com.example.ai.common.api.dto.AppendMessageRequest;
 import com.example.ai.common.api.dto.ChatRequest;
 import com.example.ai.common.api.dto.ChatResponse;
 import com.example.ai.common.api.dto.ConversationMessageDto;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -66,11 +68,13 @@ public class ChatOrchestrationService {
     public ChatResponse chat(ChatRequest request) {
         rateLimitService.check(StpUtil.getLoginIdAsLong());
         String provider = resolveProvider(request.provider());
+        String model = providerRegistry.model(provider);
         ChatClient chatClient = providerRegistry.client(provider);
         String authorization = authorizationHeader();
         String sessionId = resolveSessionId(request.sessionId(), authorization);
 
-        List<KnowledgeSearchHit> hits = knowledgeServiceClient.search(request.message(), authorization);
+        List<KnowledgeSearchHit> hits = knowledgeServiceClient.search(
+                request.message(), request.appId(), authorization);
         List<SourceCitation> sources = new ArrayList<>(toLocalCitations(hits));
 
         ChatMode modeUsed = resolveMode(request.mode(), request.message());
@@ -93,10 +97,35 @@ public class ChatOrchestrationService {
             }
         }
 
-        String answer = chatClient.prompt().user(userContent).call().content();
+        String traceId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+        long started = System.nanoTime();
+        org.springframework.ai.chat.model.ChatResponse modelResponse =
+                chatClient.prompt().user(userContent).call().chatResponse();
+        long elapsedMs = Math.min(Integer.MAX_VALUE, (System.nanoTime() - started) / 1_000_000);
+        String answer = modelResponse.getResult() == null || modelResponse.getResult().getOutput() == null
+                ? ""
+                : modelResponse.getResult().getOutput().getText();
+        if (answer == null) {
+            answer = "";
+        }
 
-        conversationServiceClient.appendMessage(sessionId, "user", request.message(), authorization);
-        conversationServiceClient.appendMessage(sessionId, "assistant", answer, authorization);
+        Integer promptTokens = null;
+        Integer completionTokens = null;
+        String finishReason = null;
+        if (modelResponse.getMetadata() != null && modelResponse.getMetadata().getUsage() != null) {
+            promptTokens = modelResponse.getMetadata().getUsage().getPromptTokens();
+            completionTokens = modelResponse.getMetadata().getUsage().getCompletionTokens();
+        }
+        if (modelResponse.getResult() != null && modelResponse.getResult().getMetadata() != null) {
+            finishReason = modelResponse.getResult().getMetadata().getFinishReason();
+        }
+
+        conversationServiceClient.appendMessage(sessionId,
+                new AppendMessageRequest("user", request.message(), null, null,
+                        null, null, null, null, traceId), authorization);
+        conversationServiceClient.appendMessage(sessionId,
+                new AppendMessageRequest("assistant", answer, provider, model,
+                        promptTokens, completionTokens, (int) elapsedMs, finishReason, traceId), authorization);
 
         LlmProperties.Expert expert = properties.getExpert();
         return new ChatResponse(

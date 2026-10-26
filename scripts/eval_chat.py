@@ -59,7 +59,7 @@ def percentile(values, ratio):
 
 def main():
     parser = argparse.ArgumentParser(description="AI 对话评测")
-    parser.add_argument("--base-url", default="http://127.0.0.1:8080")
+    parser.add_argument("--base-url", default="http://127.0.0.1:9100")
     parser.add_argument("--username", default="admin")
     parser.add_argument("--password", default="admin123")
     parser.add_argument("--dataset", default="eval/questions.jsonl")

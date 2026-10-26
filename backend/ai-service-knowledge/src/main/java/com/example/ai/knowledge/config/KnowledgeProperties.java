@@ -14,6 +14,7 @@ public class KnowledgeProperties {
     private String storageDir = "./data/knowledge-base";
     private int ragTopK = 5;
     private double similarityThreshold = 0.65;
+    private String embeddingModel = "all-MiniLM-L6-v2";
 
     public String getStorageDir() {
         return storageDir;
@@ -37,5 +38,13 @@ public class KnowledgeProperties {
 
     public void setSimilarityThreshold(double similarityThreshold) {
         this.similarityThreshold = similarityThreshold;
+    }
+
+    public String getEmbeddingModel() {
+        return embeddingModel;
+    }
+
+    public void setEmbeddingModel(String embeddingModel) {
+        this.embeddingModel = embeddingModel;
     }
 }

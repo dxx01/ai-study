@@ -18,11 +18,16 @@ public record ChatRequest(
         String sessionId,
         ChatMode mode,
         @Size(max = 64, message = "provider 过长")
-        String provider
+        String provider,
+        @Size(max = 32, message = "appId 过长")
+        String appId
 ) {
     public ChatRequest {
         if (mode == null) {
             mode = ChatMode.AUTO;
+        }
+        if (appId == null || appId.isBlank()) {
+            appId = "health";
         }
     }
 }

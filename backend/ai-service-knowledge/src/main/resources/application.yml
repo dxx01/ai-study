@@ -4,27 +4,33 @@ server:
 spring:
   application:
     name: ai-service-knowledge
-  profiles:
-    active: dev
-  # 若已生成本地模型配置则自动使用，避免每次访问 GitHub；缺省回退到远程模型
   config:
     import:
+      - optional:file:./deploy/env/current.env[.properties]
+      - optional:file:../../deploy/env/current.env[.properties]
+      - optional:classpath:config/satoken-common.yml
+      - optional:classpath:config/nacos-client.yml
+      - optional:nacos:application-common.yaml?group=DEFAULT_GROUP&refreshEnabled=true
+      - optional:nacos:ai-service-knowledge.yaml?group=DEFAULT_GROUP&refreshEnabled=true
       - optional:file:./data/model-cache/local-model.properties
       - optional:file:../../backend/ai-service-knowledge/data/model-cache/local-model.properties
       - optional:file:./backend/ai-service-knowledge/data/model-cache/local-model.properties
-  # ai-common 传递了 MyBatis-Plus/JDBC，但本服务只用 Redis + 向量库，不需要 DataSource
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:${spring.profiles.active:dev}}
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ai_platform}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
       database: 0
   ai:
     embedding:
       transformer:
-        # 模型首次下载后缓存到项目目录，避免 %TEMP% 清理后重复下载
         cache:
           directory: ${EMBEDDING_CACHE_DIR:./data/model-cache}
   servlet:
@@ -32,23 +38,17 @@ spring:
       max-file-size: 25MB
       max-request-size: 30MB
 
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-handlers-package: com.baomidou.mybatisplus.extension.handlers
+
 app:
   knowledge:
     storage-dir: ${KNOWLEDGE_STORAGE_DIR:./data/knowledge-base}
     rag-top-k: 5
     similarity-threshold: 0.65
-
-sa-token:
-  token-name: Authorization
-  token-prefix: Bearer
-  is-read-header: true
-  is-read-cookie: false
-  timeout: 86400
-  active-timeout: -1
-  is-concurrent: true
-  is-share: true
-  token-style: uuid
-  is-log: false
+    embedding-model: ${EMBEDDING_MODEL_NAME:all-MiniLM-L6-v2}
 
 management:
   endpoints:

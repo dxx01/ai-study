@@ -1,0 +1,7 @@
+# profile=server 时本机仍用 .env.dev.properties 提供 OPENAI_*（连云库调试）
+spring:
+  config:
+    import:
+      - optional:file:./.env.dev.properties
+      - optional:file:../../backend/ai-service-llm/.env.dev.properties
+      - optional:file:./backend/ai-service-llm/.env.dev.properties

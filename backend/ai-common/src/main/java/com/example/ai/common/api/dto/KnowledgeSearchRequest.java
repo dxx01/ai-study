@@ -10,6 +10,12 @@ import jakarta.validation.constraints.Size;
  * @since 0.3.0
  */
 public record KnowledgeSearchRequest(
-        @NotBlank @Size(max = 2000) String query
+        @NotBlank @Size(max = 2000) String query,
+        @Size(max = 32) String appId
 ) {
+    public KnowledgeSearchRequest {
+        if (appId == null || appId.isBlank()) {
+            appId = "health";
+        }
+    }
 }
